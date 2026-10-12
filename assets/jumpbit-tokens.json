@@ -1,0 +1,29 @@
+{
+  "$description": "Jump Bit design tokens. Source of truth for jumpbit-theme.css and jumpbit-theme.axaml. Brand colors are taken from the Brand Kit color palette; derived and functional colors are marked.",
+  "brand": {
+    "ink":      { "value": "#181818", "role": "darkest, text on light, page background (dark theme)" },
+    "charcoal": { "value": "#323232", "role": "primary brand color, logo background, app icon" },
+    "graphite": { "value": "#4b4b4b", "role": "secondary dark, gradient end" },
+    "slate":    { "value": "#656565", "role": "muted text on light" },
+    "mist":     { "value": "#e6e6e6", "role": "borders, subtle surfaces" },
+    "white":    { "value": "#ffffff", "role": "logo on dark, page background (light theme)" }
+  },
+  "derived": {
+    "paper":   { "value": "#f5f5f6", "role": "app/page surface (light); matches mockup backdrop" },
+    "silver":  { "value": "#b8b8b8", "role": "disabled, placeholder" },
+    "fog":     { "value": "#8f8f8f", "role": "muted text on dark" },
+    "gold":    { "value": "#f5e8a0", "role": "optional highlight accent; approximated from the gold-foil mockup, not in the official palette" }
+  },
+  "functional": {
+    "success": { "value": "#2e7d32" },
+    "warning": { "value": "#b26a00" },
+    "danger":  { "value": "#c62828" },
+    "info":    { "value": "#1565c0" }
+  },
+  "typography": {
+    "brand": "Jost, Futura, 'Century Gothic', system-ui, sans-serif",
+    "body": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+    "mono": "ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+  },
+  "radius": { "sm": 4, "md": 8, "lg": 14 }
+}

@@ -1,0 +1,103 @@
+---
+applyTo: "**/*.py"
+description: "Rich terminal output, logging and progress rules for Python"
+---
+
+# Rich (Python) Guidelines
+https://github.com/textualize/rich
+
+## Purpose
+Rules for terminal output with **Rich 15.x** (`rich>=15`, requires Python 3.9+). These rules apply whenever a Python file produces console output, logging, progress display or tracebacks. Follow [python.instructions.md](./python.instructions.md) for all general Python rules; this file only covers terminal output.
+
+## Installation and setup
+- Declare `rich>=15,<16` in `pyproject.toml` (never unpinned) and install via the project's tool (`uv`, `pip`, `poetry`).
+- Create **one shared `Console`** per application in a dedicated module (e.g. `app/console.py`) and import it everywhere; don't create consoles ad hoc:
+  ```python
+  from rich.console import Console
+  from rich.theme import Theme
+
+  theme = Theme({"info": "cyan", "success": "bold green", "warning": "yellow", "error": "bold red"})
+  console = Console(theme=theme)
+  err_console = Console(stderr=True, theme=theme)
+  ```
+- Use a `Theme` with semantic style names (`[error]`, `[success]`) instead of hardcoded colors in messages, so colors can change in one place.
+- Send data to stdout (`console`) and diagnostics, warnings and errors to stderr (`err_console`), so output can be piped.
+
+## Printing
+- Use `console.print()` in application code; don't mix built-in `print()` and Rich output. `from rich import print` is fine for quick scripts only.
+- Use console markup (`"[bold]Done[/bold]"`) for static strings. **Escape all untrusted or dynamic text** with `rich.markup.escape()` or pass it as a `Text` object, because square brackets in data (paths, user input, log lines) are otherwise interpreted as markup.
+- Disable markup and highlighting where output must be literal: `console.print(value, markup=False, highlight=False)`.
+- Use `console.print_json()` for JSON, `Syntax` for code, `Markdown` for Markdown, `Pretty` / `rich.pretty` for data structures.
+- Use emoji codes (`:white_check_mark:`) sparingly and never as the only carrier of meaning.
+- Use `console.rule()` for sections, `Panel` for highlighted blocks, `Columns` for lists, `Tree` for hierarchies, `Padding`/`Align` for layout.
+
+## Tables
+- Build with `Table(title=..., show_header=True)`, define columns with `add_column(header, justify=..., style=..., no_wrap=...)`, then `add_row()` with strings or renderables.
+- Right-align numbers (`justify="right"`), format values before adding them (thousands separators, fixed decimals, units).
+- Set `overflow="fold"` or `max_width` for long values; don't assume terminal width.
+- For machine-readable output (`--json`, `--csv`, piping), skip the table and print plain data instead.
+
+## Progress, status and live display
+- Use `rich.progress.track()` for simple loops; `Progress` with explicit columns (`SpinnerColumn`, `TextColumn`, `BarColumn`, `TaskProgressColumn`, `TimeRemainingColumn`, `DownloadColumn`, `TransferSpeedColumn`) for multiple tasks or downloads.
+- Use `console.status("...")` for work without measurable progress.
+- Always use progress/status/`Live` as **context managers** (`with Progress(...) as progress:`) so the terminal is restored on errors.
+- Pass the shared console (`Progress(console=console)`) and print through it (`progress.console.print()` or `console.log()`) while a live display runs; never use `print()` inside a live display.
+- Live displays may be nested (Rich 14.1+), but keep one top-level live region per screen area.
+- Use `transient=True` when the progress bar shouldn't remain after completion.
+- Set `refresh_per_second` reasonably (default 10); don't update renderables in tight loops faster than needed.
+
+## Logging
+- Use the standard `logging` module with `RichHandler`; don't replace logging with `console.log()` in libraries or services:
+  ```python
+  import logging
+  from rich.logging import RichHandler
+
+  logging.basicConfig(
+      level="INFO",
+      format="%(message)s",
+      datefmt="[%X]",
+      handlers=[RichHandler(console=err_console, rich_tracebacks=True, markup=False)],
+  )
+  log = logging.getLogger(__name__)
+  ```
+- Keep `markup=False` on the handler unless all messages are trusted; use `extra={"markup": True}` for individual trusted messages.
+- Use `RichHandler` for interactive CLIs only. For servers, containers and CI log collection, use plain or JSON logging (structured) and switch based on configuration or `console.is_terminal`.
+- `console.log()` (with time and source location) is for development and debugging output.
+
+## Tracebacks and debugging
+- Install Rich tracebacks once at the application entry point, never in library code:
+  ```python
+  from rich.traceback import install
+  install(show_locals=False, suppress=[click])  # suppress framework frames as needed
+  ```
+- Never enable `show_locals=True` (tracebacks or logging) in production: local variables may contain secrets or personal data.
+- `rich.inspect()` and `rich.pretty.install()` are for REPL and debugging only; don't leave them in committed code.
+
+## Terminal detection and environment
+- Let Rich detect the terminal; don't force colors in code. Respect the standard environment variables:
+  - `NO_COLOR` (non-empty) disables color, `FORCE_COLOR` (non-empty) forces it; empty values count as unset (Rich 14+).
+  - `TTY_COMPATIBLE=1` writes escape sequences when output isn't a terminal but supports them (e.g. GitHub Actions); `TTY_INTERACTIVE=0|1` forces interactive mode off or on.
+  - `COLUMNS` / `LINES` override the terminal size.
+- Check `console.is_terminal` / `console.is_interactive` before showing prompts, spinners or live displays; fall back to plain line output in non-interactive environments.
+- Offer a `--no-color` / `--plain` CLI option that constructs the console with `no_color=True` or `force_terminal=False`.
+- Use `Console(record=True)` with `export_text()` / `export_html()` / `export_svg()` to save output; `Console(file=...)` to write to files.
+
+## Prompts
+- Use `rich.prompt.Prompt`, `Confirm`, `IntPrompt`, `FloatPrompt` with `choices=` and `default=` for interactive input; validate the result.
+- Never prompt when not interactive; take values from CLI arguments or environment instead. Use `password=True` for secrets.
+
+## Custom renderables
+- Implement `__rich__()` (return a renderable) or `__rich_console__()` (yield segments/renderables) on your own classes instead of formatting strings everywhere; implement `__rich_repr__()` for readable pretty-printing.
+- Keep domain logic separate from presentation: functions return data, a thin output layer renders it with Rich.
+
+## Integration with CLI frameworks
+- Typer uses Rich automatically for help and errors; Click can use `rich-click`. Use the same shared console and theme.
+- For full-screen or interactive terminal apps, use Textual (built on Rich) instead of stacking many live displays.
+
+## Testing
+- Test output with a console writing to a buffer: `Console(file=io.StringIO(), width=80, force_terminal=False, color_system=None)`, or `record=True` with `export_text()`.
+- Fix `width` in tests so wrapping is deterministic; assert on plain text, not escape codes.
+- Inject the console as a parameter or fixture instead of importing the global one in code under test.
+
+## Code review focus
+Flag in this order: untrusted text printed with markup enabled, `show_locals=True` or secrets in output, mixing `print()` with live displays, progress or live displays not used as context managers, multiple ad-hoc `Console` instances, hardcoded colors instead of theme styles, Rich output where machine-readable output is expected, missing non-interactive fallbacks, `inspect()`/`pretty.install()` left in code.

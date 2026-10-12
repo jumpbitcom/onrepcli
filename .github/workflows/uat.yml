@@ -1,0 +1,33 @@
+# Replaces the former .github/hooks/uat.json: Copilot hooks only react to agent-session
+# events, so pull request automation for User Acceptance Testing lives here.
+# Required checks ("build", "test") are enforced by a branch ruleset on uat/** and release/**.
+name: UAT ready
+
+on:
+  pull_request:
+    types: [labeled]
+    branches:
+      - "uat/**"
+      - "release/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  notify:
+    if: github.event.label.name == 'uat-ready'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Comment on pull request
+        run: >
+          gh pr comment "$PR" --repo "$REPO"
+          --body "This branch is ready for User Acceptance Testing. Please validate the acceptance criteria and report any issues before approval."
+      - name: Request review from UAT testers
+        # Team reviews need the team to have access to the repository. If GITHUB_TOKEN
+        # is not allowed to request team reviews in your org, use a GitHub App token.
+        run: gh pr edit "$PR" --repo "$REPO" --add-reviewer "${{ github.repository_owner }}/uat-testers"

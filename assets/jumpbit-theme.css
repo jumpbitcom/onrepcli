@@ -1,0 +1,223 @@
+/* Jump Bit theme — generated from the Brand Kit palette (see jumpbit-tokens.json).
+   Usage: <link rel="stylesheet" href="/assets/jumpbit-theme.css">
+   Dark mode follows the OS; force it with <html class="theme-dark"> or <html class="theme-light">. */
+
+:root {
+	/* Brand palette */
+	--jb-ink: #181818;
+	--jb-charcoal: #323232;
+	--jb-graphite: #4b4b4b;
+	--jb-slate: #656565;
+	--jb-mist: #e6e6e6;
+	--jb-white: #ffffff;
+
+	/* Derived neutrals and optional accent */
+	--jb-paper: #f5f5f6;
+	--jb-silver: #b8b8b8;
+	--jb-fog: #8f8f8f;
+	--jb-gold: #f5e8a0;
+
+	/* Functional colors */
+	--jb-success: #2e7d32;
+	--jb-warning: #b26a00;
+	--jb-danger: #c62828;
+	--jb-info: #1565c0;
+
+	/* Semantic tokens — light theme */
+	--color-bg: var(--jb-white);
+	--color-surface: var(--jb-paper);
+	--color-surface-raised: var(--jb-white);
+	--color-border: var(--jb-mist);
+	--color-text: var(--jb-ink);
+	--color-text-muted: var(--jb-slate);
+	--color-primary: var(--jb-charcoal);
+	--color-primary-hover: var(--jb-ink);
+	--color-on-primary: var(--jb-white);
+	--color-secondary: var(--jb-graphite);
+	--color-accent: var(--jb-gold);
+	--color-on-accent: var(--jb-ink);
+	--color-link: var(--jb-charcoal);
+	--color-focus: var(--jb-charcoal);
+	--color-disabled: var(--jb-silver);
+
+	/* Gradients (background of the logo mockups) */
+	--gradient-brand: linear-gradient(135deg, var(--jb-ink) 0%, var(--jb-charcoal) 45%, var(--jb-graphite) 100%);
+	--gradient-subtle: linear-gradient(150deg, var(--jb-paper) 19%, var(--jb-white) 100%);
+
+	/* Shadows */
+	--shadow-sm: 0 1px 2px rgba(24, 24, 24, 0.08), 0 1px 1px rgba(24, 24, 24, 0.06);
+	--shadow-md: 0 4px 12px rgba(24, 24, 24, 0.10), 0 2px 4px rgba(24, 24, 24, 0.06);
+	--shadow-lg: 0 16px 32px rgba(24, 24, 24, 0.14), 0 4px 8px rgba(24, 24, 24, 0.08);
+
+	/* Typography */
+	--font-system: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+	--font-body: var(--font-system);
+	--font-brand: Jost, Futura, 'Century Gothic', var(--font-system);
+	--font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+	--text-sm: 0.875rem;
+	--text-base: 1rem;
+	--text-md: 1.125rem;
+	--text-lg: 1.25rem;
+	--text-xl: 1.625rem;
+	--text-2xl: 2.125rem;
+	--text-3xl: 2.625rem;
+	--text-4xl: 3.5rem;
+
+	/* Shape and motion */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 14px;
+	--theme-transition: 0.2s ease-in-out;
+
+	color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not(.theme-light) {
+		--color-bg: var(--jb-ink);
+		--color-surface: var(--jb-charcoal);
+		--color-surface-raised: #262626;
+		--color-border: var(--jb-graphite);
+		--color-text: var(--jb-white);
+		--color-text-muted: var(--jb-silver);
+		--color-primary: var(--jb-white);
+		--color-primary-hover: var(--jb-mist);
+		--color-on-primary: var(--jb-ink);
+		--color-secondary: var(--jb-mist);
+		--color-link: var(--jb-white);
+		--color-focus: var(--jb-white);
+		--color-disabled: var(--jb-slate);
+		--gradient-subtle: linear-gradient(150deg, var(--jb-charcoal) 19%, var(--jb-ink) 100%);
+		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+		--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+		--shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.5);
+		color-scheme: dark;
+	}
+}
+
+:root.theme-dark {
+	--color-bg: var(--jb-ink);
+	--color-surface: var(--jb-charcoal);
+	--color-surface-raised: #262626;
+	--color-border: var(--jb-graphite);
+	--color-text: var(--jb-white);
+	--color-text-muted: var(--jb-silver);
+	--color-primary: var(--jb-white);
+	--color-primary-hover: var(--jb-mist);
+	--color-on-primary: var(--jb-ink);
+	--color-secondary: var(--jb-mist);
+	--color-link: var(--jb-white);
+	--color-focus: var(--jb-white);
+	--color-disabled: var(--jb-slate);
+	--gradient-subtle: linear-gradient(150deg, var(--jb-charcoal) 19%, var(--jb-ink) 100%);
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+	--shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.5);
+	color-scheme: dark;
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: var(--font-body);
+	font-size: var(--text-base);
+	line-height: 1.5;
+	color: var(--color-text);
+	background: var(--color-bg);
+	transition: background var(--theme-transition), color var(--theme-transition);
+}
+
+h1, h2, h3, h4 {
+	font-family: var(--font-brand);
+	font-weight: 600;
+	line-height: 1.15;
+	letter-spacing: 0.02em;
+	margin: 0 0 0.5em;
+}
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+
+a { color: var(--color-link); text-underline-offset: 0.2em; }
+a:hover { color: var(--color-secondary); }
+
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+code, pre { font-family: var(--font-mono); }
+
+/* Buttons */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.65rem 1.4rem;
+	font: inherit;
+	font-family: var(--font-brand);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--color-on-primary);
+	background: var(--color-primary);
+	border: 1px solid var(--color-primary);
+	border-radius: var(--radius-md);
+	cursor: pointer;
+	transition: background var(--theme-transition), border-color var(--theme-transition);
+}
+.btn:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); color: var(--color-on-primary); }
+.btn:disabled, .btn[aria-disabled='true'] { background: var(--color-disabled); border-color: var(--color-disabled); cursor: not-allowed; }
+.btn-outline { color: var(--color-primary); background: transparent; }
+.btn-outline:hover { color: var(--color-on-primary); }
+
+/* Inputs */
+input, select, textarea {
+	font: inherit;
+	color: var(--color-text);
+	background: var(--color-surface-raised);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: 0.55rem 0.8rem;
+}
+input::placeholder, textarea::placeholder { color: var(--color-text-muted); }
+
+/* Card */
+.card {
+	background: var(--color-surface-raised);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-md);
+	padding: 1.5rem;
+}
+
+/* Status */
+.text-success { color: var(--jb-success); }
+.text-warning { color: var(--jb-warning); }
+.text-danger { color: var(--jb-danger); }
+.text-info { color: var(--jb-info); }
+.text-muted { color: var(--color-text-muted); }
+
+/* Centered landing layout (logo, headline, call to action, footer) */
+.landing {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 2rem;
+	color: var(--jb-white);
+	background: var(--gradient-brand);
+}
+.landing .logo img { max-width: min(420px, 80vw); height: auto; margin-bottom: 2rem; }
+.landing p { color: var(--jb-mist); }
+.landing .btn { color: var(--jb-ink); background: var(--jb-white); border-color: var(--jb-white); }
+.landing .btn:hover { background: var(--jb-mist); border-color: var(--jb-mist); }
+.landing footer { margin-top: 3rem; font-size: var(--text-sm); color: var(--jb-silver); }
+
+[x-cloak] { display: none !important; }

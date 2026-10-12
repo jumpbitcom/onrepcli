@@ -1,0 +1,94 @@
+---
+applyTo: "**/mariadb/**/*.sql"
+description: "MariaDB 12.3 LTS SQL rules"
+---
+
+# MariaDB and MariaDB SQL Guidelines
+https://mariadb.org
+
+## Purpose
+Rules for writing and reviewing MariaDB SQL (schema, queries, stored routines, triggers, migrations). Target: **MariaDB Community Server 12.3 LTS** (maintained until June 2029). Write MariaDB SQL, not MySQL or T-SQL; when syntax differs between MariaDB and MySQL, use the MariaDB form. If a feature needs 12.x, say so in a comment.
+
+Applies to `.sql` files under a `mariadb/` folder. In a repository that only uses MariaDB, you can widen `applyTo` to `**/*.sql`.
+
+## General style
+- Keywords in UPPER CASE, identifiers in `snake_case` lower case. One clause per line (`SELECT`, `FROM`, `JOIN`, `WHERE`, `GROUP BY`, `ORDER BY`).
+- End every statement with `;`. In routine and trigger scripts use `DELIMITER //` ... `DELIMITER ;`.
+- Quote identifiers with backticks only when necessary; never use reserved words as names (12.3 adds `CONVERSION` and `TO_DATE` as reserved words).
+- No `SELECT *` in application code; always list columns in `INSERT`.
+- Use explicit `JOIN ... ON`, never comma joins; prefix columns with table aliases in multi-table queries.
+- Comment intent with `--` (note the required space after `--`).
+
+## Naming
+- Tables: plural or singular, but consistent across the schema, `snake_case` (`customer`, `order_line`). Primary key `id` or `<table>_id`, consistent project-wide.
+- Constraints and indexes: `pk_<table>`, `fk_<child>_<parent>`, `uq_<table>_<cols>`, `ck_<table>_<rule>`, `idx_<table>_<cols>`.
+- Routines: `<entity>_<action>` (e.g. `order_insert`). Triggers: `trg_<table>_<timing>_<events>`.
+
+## Server and session settings
+- Assume `sql_mode` includes `STRICT_TRANS_TABLES`, `ERROR_FOR_DIVISION_BY_ZERO`, `NO_ENGINE_SUBSTITUTION` and `ONLY_FULL_GROUP_BY`. Never write code that depends on non-strict mode or disables it.
+- Character set `utf8mb4` with a `uca1400_ai_ci` collation (or `utf8mb4_uca1400_ai_ci`). Never `utf8`/`utf8mb3` or `latin1` for new tables.
+- Storage engine `InnoDB` for all transactional tables. Aria only for special cases, never MyISAM for application data.
+- Default isolation is `REPEATABLE READ` with `innodb_snapshot_isolation = ON`: handle the resulting conflict errors (`ER_CHECKREAD`) with retry logic instead of disabling it.
+
+## Data types and schema
+- Smallest correct type. Money: `DECIMAL(19,4)`, never `FLOAT`/`DOUBLE`. Integers: `INT UNSIGNED` or `BIGINT UNSIGNED` for keys.
+- Dates: `DATE`, `DATETIME(6)` for local time, `TIMESTAMP(6)` for UTC instants. Store application times in UTC.
+- Text: `VARCHAR(n)` with a realistic limit; `TEXT` only for long free text. `ENUM` only for truly fixed sets; otherwise a lookup table.
+- Use native types: `UUID` for UUIDs (not `CHAR(36)`), `INET6`/`INET4` for IP addresses, `VECTOR(n)` with a `VECTOR INDEX` for embeddings, `JSON` for documents.
+- JSON: `JSON` is an alias of `LONGTEXT` with a `JSON_VALID` check; add `CHECK (JSON_VALID(col))` or `JSON_SCHEMA_VALID()` explicitly and query with `JSON_VALUE`, `JSON_EXTRACT`, `JSON_TABLE`. Use `IS JSON` predicates (12.3) for validation in queries. Index JSON paths via stored generated columns.
+- Every table has a primary key and explicit `NOT NULL` where possible. Enforce integrity with `FOREIGN KEY`, `UNIQUE` and `CHECK` constraints.
+- Name constraints explicitly. Foreign key names only need to be unique per table (12.1+), but keep them unique per schema for clarity.
+- Use `SEQUENCE` objects or `AUTO_INCREMENT` for surrogate keys.
+- Use system-versioned tables (`WITH SYSTEM VERSIONING`) for audit history instead of trigger-based audit tables; application-time periods for valid-from/valid-to data.
+- Use generated columns (`GENERATED ALWAYS AS (...) STORED|VIRTUAL`) instead of duplicated data maintained by triggers.
+
+## Modern MariaDB SQL (prefer these)
+- CTEs (`WITH`, `WITH RECURSIVE`), including in `UPDATE`/`DELETE` (12.3).
+- Window functions (`ROW_NUMBER`, `RANK`, `LAG`, `LEAD`, `SUM() OVER`).
+- `RETURNING` on `INSERT`, `REPLACE` and `DELETE` instead of a second query.
+- `INSERT ... ON DUPLICATE KEY UPDATE` for upserts (reference new values with `VALUE(col)`).
+- `REGEXP_REPLACE`, `REGEXP_SUBSTR`, `REGEXP_INSTR` for pattern work.
+- `JSON_TABLE`, `JSON_ARRAYAGG`, `JSON_OBJECTAGG`, `JSON_OVERLAPS`, `JSON_NORMALIZE`.
+- `VEC_DISTANCE_EUCLIDEAN` / `VEC_DISTANCE_COSINE` with `ORDER BY ... LIMIT n` for vector search.
+- Triggers on multiple events (`BEFORE INSERT OR UPDATE`, 12.3) instead of duplicated trigger bodies.
+- Optimizer hints `/*+ ... */` (`JOIN_ORDER`, `INDEX`, `NO_INDEX`, `MAX_EXECUTION_TIME`, `QB_NAME`) only with a documented reason and measured plan.
+- Oracle compatibility features (`sql_mode=ORACLE`, `(+)` joins, associative arrays, `TO_DATE`, `TO_NUMBER`) only in code explicitly migrated from Oracle; never mix modes in one schema.
+
+## Queries and performance
+- Set-based code first. Cursors and loops only when unavoidable, with a comment explaining why.
+- Keep predicates sargable: no functions on indexed columns (`created_at >= ? AND created_at < ?`, not `YEAR(created_at) = 2026`); avoid implicit type and collation conversions.
+- `EXISTS` / `NOT EXISTS` over `IN` / `NOT IN` with subqueries (NULL-safe).
+- Keyset pagination (`WHERE id > ? ORDER BY id LIMIT n`) for large tables instead of large `OFFSET`s.
+- Composite indexes ordered by selectivity and query pattern; covering indexes for hot queries; no duplicate or unused indexes. Use descending indexes where the sort needs them.
+- Check new or changed queries with `EXPLAIN FORMAT=JSON` / `ANALYZE FORMAT=JSON`.
+- Batch large `UPDATE`/`DELETE` operations (`LIMIT` loops) to limit locking and replication lag.
+
+## Stored routines and transactions
+- Keep business logic in the application unless there's a clear reason; keep routines short and deterministic where possible.
+- Declare `SQL SECURITY INVOKER` unless `DEFINER` is required, and set a dedicated, least-privileged `DEFINER`.
+- Use `DECLARE ... HANDLER FOR SQLEXCEPTION` with `ROLLBACK` and `RESIGNAL` for error handling; raise custom errors with `SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '...'`.
+- Wrap multi-statement changes in `START TRANSACTION ... COMMIT`; keep transactions short; no user interaction or external calls inside them.
+- Use `SELECT ... FOR UPDATE` (or `SKIP LOCKED` for queue patterns) when reading rows to change them.
+- Use `SYS_REFCURSOR` (12.x) to return cursors from routines instead of temporary tables where it simplifies the code.
+
+## Security
+- Never concatenate user input into SQL. Use prepared statements with placeholders in the application; in routines use `PREPARE ... EXECUTE ... USING` and validate identifiers against a whitelist.
+- Least privilege: separate users for application, migrations and read-only reporting; use roles (`CREATE ROLE`, `SET DEFAULT ROLE`). Never let applications connect as `root`.
+- Accounts restricted by host (`'app'@'10.0.%'`, not `'app'@'%'`). Use `ed25519` or `parsec` authentication; `caching_sha2_password` only for MySQL client compatibility.
+- Require TLS for remote connections (`REQUIRE SSL`); never hardcode passwords or keys in scripts.
+- Use data-at-rest encryption (`innodb_encrypt_tables`) with a key management plugin for sensitive data.
+
+## Migrations and deployment
+- Use a migration tool (Flyway, Liquibase or the framework's tool); one logical change per file with a sortable name.
+- Scripts are idempotent where possible: `CREATE TABLE IF NOT EXISTS`, `CREATE OR REPLACE` for views/routines/triggers, `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, `DROP ... IF EXISTS`.
+- Use `ALGORITHM=INSTANT` or `ALGORITHM=INPLACE, LOCK=NONE` for online schema changes and let the statement fail rather than silently copying the table.
+- Expand-and-contract for renames and drops; never drop a column in the same release that stops using it.
+- DDL is not transactional in MariaDB: keep each migration small so a failure is easy to recover.
+- Back up with `mariadb-backup` (physical) or `mariadb-dump --single-transaction` (logical). Use the `mariadb*` client names, not the deprecated `mysql*` aliases.
+
+## Testing
+- Run schema and query tests against the same MariaDB version as production (e.g. the `mariadb:12.3` container image).
+- Test stored routines and triggers with dedicated test data and assert results, including error paths.
+
+## Code review focus
+Flag in this order: SQL injection risks, missing transaction or error handling, non-sargable predicates and implicit conversions, missing primary keys or constraints, `utf8mb3`/`latin1` or MyISAM tables, `SELECT *`, blocking DDL without `ALGORITHM`/`LOCK`, over-privileged accounts or `DEFINER`s, MySQL- or T-SQL-only syntax.

@@ -1,0 +1,56 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Include after FluentTheme and jumpbit-theme.axaml in App.axaml:
+       <StyleInclude Source="avares://YourApp/Assets/jumpbit-styles.axaml" /> -->
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource JbBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontSize" Value="42" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontSize" Value="34" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource JbTextMutedBrush}" />
+  </Style>
+
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource JbPrimaryBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Padding" Value="20,10" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryHoverBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource JbPrimaryHoverBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource JbBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource JbRadiusLg}" />
+    <Setter Property="Padding" Value="24" />
+  </Style>
+
+  <Style Selector="Border.landing">
+    <Setter Property="Background" Value="{StaticResource JbBrandGradientBrush}" />
+  </Style>
+</Styles>

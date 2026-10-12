@@ -1,0 +1,92 @@
+---
+applyTo: "**/*.axaml,**/*.axaml.cs,**/ViewModels/**/*.cs,**/Views/**/*.cs,**/App.axaml.cs,**/Program.cs"
+---
+
+# Avalonia UI Guidelines
+https://avaloniaui.net
+
+## Purpose
+Rules for building and reviewing cross-platform apps with **Avalonia 12.x** (latest 12.1) — desktop (Windows, macOS, Linux), mobile (Android, iOS), browser (WebAssembly) and embedded — using C# and XAML (`.axaml`).
+
+**All C# and .NET rules apply:** follow [csharp-dotnet.instructions.md](./csharp-dotnet.instructions.md) for every `.cs` file (nullable, async, naming, DI, testing). This file only adds Avalonia-specific rules; where both files cover the same topic, this file wins for Avalonia code.
+
+Use Avalonia 12 for new projects. Projects still on 11.3 (maintained with fixes) must not use 12-only APIs; check the package version in `Directory.Packages.props` first.
+
+## Project setup
+- Create projects from the official templates (`dotnet new install Avalonia.Templates`, then `avalonia.mvvm` or `avalonia.xplat`).
+- Target the current .NET LTS (`net10.0`) unless the project states otherwise; keep all `Avalonia.*` packages on the **same version** via central package management.
+- Cross-platform solutions: one shared project (views, view models, styles) plus thin head projects per platform (`.Desktop`, `.Android`, `.iOS`, `.Browser`). Platform-specific code stays in the heads or behind interfaces.
+- Enable compiled bindings globally in the project file and never turn them off:
+  ```xml
+  <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  ```
+- Use a built-in theme (`FluentTheme` or `SimpleTheme`) and set `RequestedThemeVariant="Default"` so the app follows the OS light/dark setting.
+- Add `Avalonia.Diagnostics` (DevTools) only in Debug builds.
+
+## Architecture (MVVM)
+- Strict MVVM: views (`.axaml` + minimal code-behind), view models (no Avalonia UI types), models/services (no UI at all).
+- Use **CommunityToolkit.Mvvm** source generators (`[ObservableProperty]`, `[RelayCommand]`, `ObservableValidator`) — or ReactiveUI if the project already uses it. Don't mix both.
+- View models never reference controls, `Window`, `TopLevel` or `Dispatcher`. Access platform features (dialogs, storage, clipboard, launcher) through injected service interfaces implemented in the UI layer.
+- Resolve views for view models with a `ViewLocator` or explicit `DataTemplate`s; don't create views inside view models.
+- Use dependency injection (`Microsoft.Extensions.DependencyInjection`) set up in `App.OnFrameworkInitializationCompleted`.
+- Code-behind only for purely visual behavior (animations, focus handling) that can't be expressed in XAML or a behavior.
+
+## XAML
+- Always declare `x:DataType` on views, `DataTemplate`s and item templates so compiled bindings are type-checked:
+  ```xml
+  <UserControl xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:vm="using:MyApp.ViewModels"
+               x:Class="MyApp.Views.CustomerView"
+               x:DataType="vm:CustomerViewModel">
+    <StackPanel Spacing="8">
+      <TextBox Text="{Binding Name}" Watermark="Name" />
+      <Button Content="Save" Command="{Binding SaveCommand}" />
+    </StackPanel>
+  </UserControl>
+  ```
+- Use `{Binding}` (compiled) by default; `{ReflectionBinding}` only when unavoidable, with a comment.
+- Prefer `Grid` with `RowDefinitions="Auto,*"` shorthand, `StackPanel Spacing`, `DockPanel` and `Panel` over deep nesting; avoid unnecessary wrapper panels.
+- Use `ItemsControl`, `ListBox`, `TreeView`, `DataGrid` or `TableView` (12.1+) with virtualization for large collections; bind to `ObservableCollection<T>` and never replace items one by one in a loop for bulk updates.
+- Use value converters sparingly: prefer computed view model properties or built-in converters (`!` negation, `ObjectConverters.IsNotNull`, `StringConverters.IsNullOrEmpty`).
+- Name elements (`x:Name`) only when code-behind needs them.
+- Use `Watermark`, `ToolTip.Tip` and `AutomationProperties.Name` for clarity and accessibility.
+
+## Styling and resources
+- Avalonia uses CSS-like selectors, not WPF triggers: write styles with selectors (`Button.primary`, `TextBox:focus`, `ListBoxItem:selected /template/ ContentPresenter`) and style classes (`Classes="primary"`).
+- Prefer `ControlTheme` for reusable control templates and `Style` for variations.
+- Keep colors, brushes, sizes and fonts in `ResourceDictionary`s with `ThemeDictionaries` for light and dark variants; reference them with `{DynamicResource}` when they change with the theme, `{StaticResource}` otherwise.
+- Never hardcode colors in views; use theme resources so light/dark and high-contrast modes work.
+- Split styles into files (`Styles/Buttons.axaml`, …) and include them in `App.axaml`.
+
+## Threading and async
+- UI objects may only be touched on the UI thread. From background work, marshal with `await Dispatcher.UIThread.InvokeAsync(...)` — but prefer returning results to the view model and letting bindings update the UI.
+- Use async commands (`[RelayCommand] async Task`) with cancellation and `IsRunning` state for long operations; never block the UI thread with `.Result` or `.Wait()`.
+- Use `DispatcherTimer` for UI timers.
+
+## Platform features
+- Use `TopLevel.GetTopLevel(control)` and its services (`StorageProvider`, `Clipboard`, `Launcher`, `InsetsManager`) wrapped in app services; never use `System.Windows.Forms`, WPF or platform-specific dialog APIs.
+- Use `IStorageProvider` (`OpenFilePickerAsync`, `SaveFilePickerAsync`) and `IStorageFile` streams instead of raw file paths, so the code works on mobile, sandboxed macOS and the browser.
+- Check `OperatingSystem.IsWindows()` / `IsMacOS()` / `IsLinux()` / `IsAndroid()` / `IsIOS()` / `IsBrowser()` only in platform service implementations.
+- Handle window lifetimes correctly: `IClassicDesktopStyleApplicationLifetime` for desktop, `ISingleViewApplicationLifetime` for mobile and browser; support both in `App.OnFrameworkInitializationCompleted`.
+- For mobile-style navigation use the built-in page system (`NavigationPage`, `TabbedPage`) instead of hand-made view switching.
+
+## Accessibility and localization
+- Every interactive control is reachable and usable with keyboard only (`TabIndex`, `IsTabStop`, access keys with `_` in labels, `HotKey`).
+- Set `AutomationProperties.Name` / `HelpText` for controls without visible text; test with Narrator, VoiceOver, TalkBack or Orca.
+- Respect OS text scaling and high-contrast themes; don't use fixed pixel heights for text containers.
+- Put user-facing strings in `.resx` resources, not in XAML or view models; format dates, numbers and currency with the current culture.
+
+## Performance and publishing
+- Keep the visual tree shallow; use virtualizing panels for lists; avoid heavy work in property getters and converters.
+- Use `Bitmap` decoding at the needed size (`DecodeToWidth`) and dispose bitmaps you create.
+- Publish desktop apps self-contained; use Native AOT or trimming where supported and keep code AOT-safe (compiled bindings, no reflection-based serialization).
+- Code-sign and notarize desktop builds (Windows Authenticode, macOS Developer ID + notarization); package per platform (MSIX/installer, `.app`/DMG, AppImage/Flatpak/deb).
+
+## Testing
+- Unit test view models without any Avalonia dependency (xUnit + mocked services).
+- Test views and interactions with **Avalonia.Headless** (`[AvaloniaFact]` / `[AvaloniaTest]`) — no real window or display needed, runs in CI.
+- Add screenshot/visual regression tests for key views in both light and dark themes where the UI is critical.
+
+## Code review focus
+Flag in this order: missing `x:DataType` or reflection bindings, UI types or `Dispatcher` in view models, blocking calls on the UI thread, platform-specific APIs in shared code, file paths instead of `IStorageProvider`, hardcoded colors or strings, non-virtualized large lists, mismatched `Avalonia.*` package versions, 12-only APIs in 11.x projects, missing keyboard/accessibility support, violations of the C#/.NET instructions.

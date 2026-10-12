@@ -1,0 +1,101 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Jump Bit resources. Merge in App.axaml:
+       <Application.Resources>
+         <ResourceDictionary>
+           <ResourceDictionary.MergedDictionaries>
+             <ResourceInclude Source="avares://YourApp/Assets/jumpbit-theme.axaml" />
+           </ResourceDictionary.MergedDictionaries>
+         </ResourceDictionary>
+       </Application.Resources>
+       and keep RequestedThemeVariant="Default" so light/dark follows the OS. -->
+
+  <!-- Brand palette (theme independent) -->
+  <Color x:Key="JbInk">#181818</Color>
+  <Color x:Key="JbCharcoal">#323232</Color>
+  <Color x:Key="JbGraphite">#4B4B4B</Color>
+  <Color x:Key="JbSlate">#656565</Color>
+  <Color x:Key="JbMist">#E6E6E6</Color>
+  <Color x:Key="JbWhite">#FFFFFF</Color>
+  <Color x:Key="JbPaper">#F5F5F6</Color>
+  <Color x:Key="JbSilver">#B8B8B8</Color>
+  <Color x:Key="JbFog">#8F8F8F</Color>
+  <Color x:Key="JbGold">#F5E8A0</Color>
+
+  <Color x:Key="JbSuccess">#2E7D32</Color>
+  <Color x:Key="JbWarning">#B26A00</Color>
+  <Color x:Key="JbDanger">#C62828</Color>
+  <Color x:Key="JbInfo">#1565C0</Color>
+
+  <SolidColorBrush x:Key="JbInkBrush" Color="{StaticResource JbInk}" />
+  <SolidColorBrush x:Key="JbCharcoalBrush" Color="{StaticResource JbCharcoal}" />
+  <SolidColorBrush x:Key="JbWhiteBrush" Color="{StaticResource JbWhite}" />
+  <SolidColorBrush x:Key="JbSuccessBrush" Color="{StaticResource JbSuccess}" />
+  <SolidColorBrush x:Key="JbWarningBrush" Color="{StaticResource JbWarning}" />
+  <SolidColorBrush x:Key="JbDangerBrush" Color="{StaticResource JbDanger}" />
+  <SolidColorBrush x:Key="JbInfoBrush" Color="{StaticResource JbInfo}" />
+
+  <LinearGradientBrush x:Key="JbBrandGradientBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Color="{StaticResource JbInk}" Offset="0" />
+    <GradientStop Color="{StaticResource JbCharcoal}" Offset="0.45" />
+    <GradientStop Color="{StaticResource JbGraphite}" Offset="1" />
+  </LinearGradientBrush>
+
+  <!-- Shape and typography -->
+  <CornerRadius x:Key="JbRadiusSm">4</CornerRadius>
+  <CornerRadius x:Key="JbRadiusMd">8</CornerRadius>
+  <CornerRadius x:Key="JbRadiusLg">14</CornerRadius>
+  <FontFamily x:Key="JbBrandFont">Jost, Futura, Century Gothic, $Default</FontFamily>
+  <FontFamily x:Key="JbBodyFont">$Default</FontFamily>
+  <FontFamily x:Key="JbMonoFont">Menlo, Consolas, Cascadia Mono, monospace</FontFamily>
+
+  <!-- Semantic brushes per theme variant. Use {DynamicResource JbBackgroundBrush} etc. in views. -->
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <!-- Fluent accent override -->
+      <Color x:Key="SystemAccentColor">#323232</Color>
+      <Color x:Key="SystemAccentColorDark1">#262626</Color>
+      <Color x:Key="SystemAccentColorDark2">#181818</Color>
+      <Color x:Key="SystemAccentColorDark3">#0E0E0E</Color>
+      <Color x:Key="SystemAccentColorLight1">#4B4B4B</Color>
+      <Color x:Key="SystemAccentColorLight2">#656565</Color>
+      <Color x:Key="SystemAccentColorLight3">#8F8F8F</Color>
+      <SolidColorBrush x:Key="JbBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="JbSurfaceBrush" Color="#F5F5F6" />
+      <SolidColorBrush x:Key="JbSurfaceRaisedBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="JbBorderBrush" Color="#E6E6E6" />
+      <SolidColorBrush x:Key="JbTextBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbTextMutedBrush" Color="#656565" />
+      <SolidColorBrush x:Key="JbPrimaryBrush" Color="#323232" />
+      <SolidColorBrush x:Key="JbPrimaryHoverBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbOnPrimaryBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="JbSecondaryBrush" Color="#4B4B4B" />
+      <SolidColorBrush x:Key="JbAccentBrush" Color="#F5E8A0" />
+      <SolidColorBrush x:Key="JbOnAccentBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbDisabledBrush" Color="#B8B8B8" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <!-- Fluent accent override -->
+      <Color x:Key="SystemAccentColor">#E6E6E6</Color>
+      <Color x:Key="SystemAccentColorDark1">#CFCFCF</Color>
+      <Color x:Key="SystemAccentColorDark2">#B8B8B8</Color>
+      <Color x:Key="SystemAccentColorDark3">#8F8F8F</Color>
+      <Color x:Key="SystemAccentColorLight1">#F0F0F0</Color>
+      <Color x:Key="SystemAccentColorLight2">#F7F7F7</Color>
+      <Color x:Key="SystemAccentColorLight3">#FFFFFF</Color>
+      <SolidColorBrush x:Key="JbBackgroundBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbSurfaceBrush" Color="#323232" />
+      <SolidColorBrush x:Key="JbSurfaceRaisedBrush" Color="#262626" />
+      <SolidColorBrush x:Key="JbBorderBrush" Color="#4B4B4B" />
+      <SolidColorBrush x:Key="JbTextBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="JbTextMutedBrush" Color="#B8B8B8" />
+      <SolidColorBrush x:Key="JbPrimaryBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="JbPrimaryHoverBrush" Color="#E6E6E6" />
+      <SolidColorBrush x:Key="JbOnPrimaryBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbSecondaryBrush" Color="#E6E6E6" />
+      <SolidColorBrush x:Key="JbAccentBrush" Color="#F5E8A0" />
+      <SolidColorBrush x:Key="JbOnAccentBrush" Color="#181818" />
+      <SolidColorBrush x:Key="JbDisabledBrush" Color="#656565" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

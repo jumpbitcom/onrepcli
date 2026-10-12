@@ -1,0 +1,96 @@
+---
+applyTo: "**/*.cs,**/*.csproj,**/*.props,**/*.targets,**/*.slnx,**/*.razor"
+---
+
+# C# and .NET Guidelines
+
+## Purpose
+Rules for writing and reviewing C# and .NET code. Targets:
+- **.NET 11 / C# 15** for projects with `<TargetFramework>net11.0</TargetFramework>` (Release Candidate with go-live license; GA November 2026; STS).
+- **.NET 10 / C# 14** (current LTS, supported until November 2028) for projects targeting `net10.0`.
+
+Always check the project's `TargetFramework` first. Only use C# 15 features in `net11.0` projects; never suggest `LangVersion` overrides to get newer features on older targets. Never target out-of-support frameworks (.NET 8 and 9 end support in November 2026).
+
+## Project setup
+- SDK-style projects only. Solutions in the `.slnx` format.
+- Central settings in `Directory.Build.props`: `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<AnalysisLevel>latest-recommended</AnalysisLevel>`, `<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>`.
+- Central package management with `Directory.Packages.props` (`ManagePackageVersionsCentrally`); no versions in individual `.csproj` files.
+- Pin the SDK in `global.json` with `rollForward: latestFeature`.
+- Code style is defined in `.editorconfig`; follow it over any rule in this file.
+- For small scripts and tools, prefer file-based apps (`dotnet run app.cs`) over a full project.
+
+## Language (C# 14, all current targets)
+- Nullable reference types everywhere; no `!` null-forgiving operator except with a comment explaining why it's safe.
+- File-scoped namespaces, one public type per file, file name = type name.
+- Primary constructors for dependency injection in classes; `record` / `record struct` for immutable data; `required` and `init` for mandatory properties.
+- Collection expressions (`[]`, `[..a, ..b]`) instead of `new List<T> { }` or `Array.Empty<T>()`.
+- Pattern matching (`is`, `switch` expressions, property and list patterns) instead of type checks and casts.
+- Extension members in `extension(...)` blocks for new extension methods and properties.
+- `field` keyword in property accessors instead of explicit backing fields when only a check or trimming is added.
+- Null-conditional assignment (`customer?.Order = order;`) instead of `if (x is not null)` wrappers.
+- `var` when the type is obvious from the right-hand side; explicit type otherwise.
+- Raw string literals (`"""`) for JSON, SQL and multi-line text; UTF-8 literals (`"text"u8`) for byte data.
+- `sealed` on classes not designed for inheritance.
+
+## Language (C# 15, `net11.0` only)
+- Union types (`public union Result(Success, Error);`) for values that are exactly one of several types, instead of `OneOf<>`, marker interfaces or base-class hierarchies. Rely on exhaustive `switch` expressions without a default arm.
+- `closed` classes/records for fixed hierarchies owned by one assembly.
+- Collection expression arguments for capacity or comparers: `HashSet<string> s = [with(StringComparer.OrdinalIgnoreCase), ..items];`.
+- Labeled `break` / `continue` instead of flags or `goto` for nested loops.
+- Extension indexers where an indexer on a foreign type improves readability.
+- Do not use the memory safety preview (pointer relaxations, `unsafe(...)` expressions); it requires `LangVersion=preview`.
+
+## Naming
+- `PascalCase` for types, methods, properties, events, constants and public fields; `camelCase` for locals and parameters; `_camelCase` for private fields; `I` prefix for interfaces; `Async` suffix for async methods; `T` prefix for type parameters.
+- No abbreviations or Hungarian notation. Boolean names read as questions (`IsActive`, `HasItems`).
+
+## Async and concurrency
+- `async`/`await` all the way. Never `.Result`, `.Wait()` or `GetAwaiter().GetResult()` on tasks.
+- Every async API accepts a `CancellationToken` (last parameter, default `= default` only on public APIs) and passes it on.
+- No `async void` except event handlers. Return `Task`/`Task<T>`; use `ValueTask` only for hot paths with measured benefit.
+- Don't use `ConfigureAwait(false)` in application code; use it in reusable libraries.
+- Use `IAsyncEnumerable<T>` for streams, `Channel<T>` for producer/consumer, `Parallel.ForEachAsync` for bounded parallelism.
+- Use `TimeProvider` instead of `DateTime.Now`/`DateTime.UtcNow` for testable time; store and transmit times as UTC (`DateTimeOffset`).
+
+## Error handling
+- Throw specific exceptions; validate arguments with `ArgumentNullException.ThrowIfNull`, `ArgumentException.ThrowIfNullOrWhiteSpace`, `ArgumentOutOfRangeException.ThrowIfNegative` etc.
+- Never swallow exceptions (`catch { }`); catch only what you can handle, and rethrow with `throw;`.
+- Use result types (a union type in `net11.0`) for expected failures; exceptions for exceptional situations.
+- `using` declarations (`using var x = ...;`) for `IDisposable`; `await using` for `IAsyncDisposable`.
+
+## Architecture and dependencies
+- Use the built-in dependency injection, configuration (`IOptions<T>` with `ValidateOnStart()`), logging (`ILogger<T>`) and hosting (`Host.CreateApplicationBuilder`).
+- Logging: structured message templates with named placeholders, no string interpolation; use `[LoggerMessage]` source generators on hot paths.
+- HTTP: `IHttpClientFactory` or typed clients with resilience (`AddStandardResilienceHandler()`); never `new HttpClient()` per call.
+- JSON: `System.Text.Json` with source-generated `JsonSerializerContext`; not Newtonsoft.Json in new code.
+- Prefer `FrozenDictionary`/`FrozenSet` for read-only lookups built once; `Span<T>`/`Memory<T>` and `ArrayPool<T>` on hot paths.
+- Keep code trimming- and Native-AOT-compatible where the project publishes AOT (no unbounded reflection; use source generators).
+
+## ASP.NET Core
+- Minimal APIs with `MapGroup`, typed results (`Results<Ok<T>, NotFound>`) and endpoint filters; controllers only where the project already uses them.
+- Built-in validation for minimal APIs; return `ProblemDetails` for errors (`AddProblemDetails()`).
+- Built-in OpenAPI (`AddOpenApi()` / `MapOpenApi()`) for API documentation.
+- Authentication and authorization on every endpoint by default (`RequireAuthorization()` fallback policy); explicitly mark anonymous endpoints.
+- `HybridCache` for caching, rate limiting middleware for public endpoints, HTTPS and HSTS in production.
+- Use .NET Aspire for local orchestration and service defaults in distributed apps.
+
+## Data access (EF Core)
+- Use the EF Core version matching the target framework. `DbContext` registered as scoped (or pooled); never shared across threads.
+- `AsNoTracking()` for read-only queries; project to DTOs with `Select`; avoid N+1 with `Include` or split queries.
+- Always async methods with cancellation tokens (`ToListAsync(ct)`).
+- Migrations are generated with `dotnet ef migrations add` and reviewed; apply them with migration bundles or SQL scripts in deployment, not `Database.Migrate()` at startup in production.
+- Never build SQL strings with user input; use LINQ or `FromSql` with interpolated parameters (`FromSql($"... {value}")`), not `FromSqlRaw` with concatenation.
+
+## Security
+- No secrets in code or `appsettings.json`; use User Secrets locally and Azure Key Vault or environment variables in production.
+- Validate and encode all external input; use the data protection APIs for tokens; use `RandomNumberGenerator` for security-related randomness.
+- Keep packages current and check them with `dotnet list package --vulnerable` and NuGet audit (`<NuGetAudit>true</NuGetAudit>`).
+
+## Testing
+- xUnit v3 (or MSTest/NUnit if the project already uses it) with `Microsoft.Testing.Platform`; FluentAssertions-free assertions or AwesomeAssertions/Shouldly per project convention.
+- Name tests `Method_Scenario_ExpectedResult`; Arrange-Act-Assert structure; one behavior per test.
+- Use `WebApplicationFactory<T>` for API integration tests and Testcontainers for real databases instead of in-memory providers.
+- Use `FakeTimeProvider` and `FakeLogger` from `Microsoft.Extensions.*.Testing` instead of hand-written fakes.
+
+## Code review focus
+Flag in this order: blocking on async code, missing cancellation tokens, secrets or SQL injection risks, swallowed exceptions, disabled nullable warnings or `!` without justification, `new HttpClient()` per call, missing authorization on endpoints, C# 15 features in projects not targeting `net11.0`, missing tests for changed behavior.
