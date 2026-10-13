@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnRepCli")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f185f92b1e258c6db2f240422ba2b21e369958e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5db6a8c811ee31648b10e39b9c9897ec0a2e677e")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnRepCli")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnRepCli")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

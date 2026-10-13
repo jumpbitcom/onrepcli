@@ -26,7 +26,10 @@ public partial class App : Application
             services.AddSingleton<MainViewModel>();
             var serviceProvider = services.BuildServiceProvider();
 
-            desktop.MainWindow = new MainWindow(serviceProvider.GetRequiredService<MainViewModel>());
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = serviceProvider.GetRequiredService<MainViewModel>(),
+            };
             desktop.Exit += (_, _) => serviceProvider.Dispose();
         }
 
