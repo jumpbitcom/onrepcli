@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Diagnostics;
 using OnRepCli.Models;
 
 namespace OnRepCli.Services;
@@ -55,6 +56,7 @@ public sealed class OnlineReportsNewsService(HttpClient httpClient, NewsPagePars
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
+            Trace.TraceWarning("News cache write failed: {0}", exception.GetType().Name);
         }
     }
 
@@ -74,6 +76,7 @@ public sealed class OnlineReportsNewsService(HttpClient httpClient, NewsPagePars
         catch (Exception exception) when (
             exception is IOException or UnauthorizedAccessException or JsonException)
         {
+            Trace.TraceWarning("News cache read failed: {0}", exception.GetType().Name);
             return null;
         }
     }

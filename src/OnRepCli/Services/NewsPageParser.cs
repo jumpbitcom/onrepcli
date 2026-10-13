@@ -70,12 +70,14 @@ public sealed class NewsPageParser
             throw new InvalidDataException("No news articles were found on the Online Reports page.");
         }
 
+        var currentSection = sections.FirstOrDefault(section =>
+            section.Url.Equals(pageUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))?.Name ?? "News";
         var latestArticles = articles
             .Select((article, index) => (article, index))
             .OrderByDescending(item => item.article.PublishedAt ?? DateTimeOffset.MinValue)
             .ThenBy(item => item.index)
             .Take(3)
-            .Select(item => item.article)
+            .Select(item => item.article with { Section = currentSection })
             .ToArray();
 
         return new NewsSnapshot(latestArticles, sections, DateTimeOffset.UtcNow);

@@ -1,0 +1,7 @@
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/OnRepCli.csproj.AssemblyReference.cache
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/Avalonia/Resources.Inputs.cache
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/Avalonia/resources
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/OnRepCli.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/OnRepCli.AssemblyInfoInputs.cache
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/OnRepCli.AssemblyInfo.cs
+/home/runner/work/onrepcli/onrepcli/src/OnRepCli/obj/Debug/net10.0/OnRepCli.csproj.CoreCompileInputs.cache

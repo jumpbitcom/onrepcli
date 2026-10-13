@@ -1,0 +1,41 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Forest">#00281F</Color>
+    <Color x:Key="Meadow">#286140</Color>
+    <Color x:Key="Sunglow">#FED33C</Color>
+    <Color x:Key="Cloud">#F9F9F4</Color>
+    <Color x:Key="Muted">#64736B</Color>
+    <Color x:Key="Border">#E1E6E0</Color>
+    <Color x:Key="White">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="ForestBrush" Color="{StaticResource Forest}" />
+    <SolidColorBrush x:Key="MeadowBrush" Color="{StaticResource Meadow}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Sunglow}" />
+    <SolidColorBrush x:Key="PageBrush" Color="{StaticResource Cloud}" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#F0F3ED" />
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource Forest}" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Muted}" />
+    <SolidColorBrush x:Key="CloudBrush" Color="{StaticResource Cloud}" />
+    <SolidColorBrush x:Key="CloudMutedBrush" Color="#C8D5CD" />
+    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource White}" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource Border}" />
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    </Style>
+    <Style Selector="Border.article-card">
+        <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="22" />
+    </Style>
+    <Style Selector="Button.refresh">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ForestBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="20,11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+</ResourceDictionary>
