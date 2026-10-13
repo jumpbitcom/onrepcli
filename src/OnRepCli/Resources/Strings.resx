@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AppTitle" xml:space="preserve"><value>Online Reports</value></data>
+  <data name="BrandTitle" xml:space="preserve"><value>ONLINE REPORTS</value></data>
+  <data name="BrandSubtitle" xml:space="preserve"><value>Basel, in the know.</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Rubrics" xml:space="preserve"><value>RUBRICS</value></data>
+  <data name="IndependentNews" xml:space="preserve"><value>Independent news from Basel and the region.</value></data>
+  <data name="Latest" xml:space="preserve"><value>The latest</value></data>
+  <data name="LatestDescription" xml:space="preserve"><value>Your three newest stories from Online Reports.</value></data>
+  <data name="AllNews" xml:space="preserve"><value>All news</value></data>
+  <data name="News" xml:space="preserve"><value>News</value></data>
+  <data name="WelcomeStatus" xml:space="preserve"><value>The latest from Basel and the surrounding region.</value></data>
+  <data name="LoadingStatus" xml:space="preserve"><value>Loading {0}…</value></data>
+  <data name="OfflineStatus" xml:space="preserve"><value>Offline — showing saved headlines from {0}.</value></data>
+  <data name="UpdatedStatus" xml:space="preserve"><value>Updated at {0}.</value></data>
+  <data name="ErrorStatus" xml:space="preserve"><value>News could not be loaded. Check your connection and try again.</value></data>
+  <data name="RefreshAccessibleName" xml:space="preserve"><value>Refresh latest news</value></data>
+  <data name="SectionsAccessibleName" xml:space="preserve"><value>News rubrics</value></data>
+</root>

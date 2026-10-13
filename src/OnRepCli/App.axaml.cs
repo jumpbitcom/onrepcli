@@ -20,8 +20,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var services = new ServiceCollection();
-            services.AddSingleton(new HttpClient { Timeout = TimeSpan.FromSeconds(15) });
-            services.AddSingleton<NewsPageParser>();
+            services.AddSingleton(_ => new HttpClient { Timeout = TimeSpan.FromSeconds(15) });
             services.AddSingleton<INewsService, OnlineReportsNewsService>();
             services.AddSingleton<MainViewModel>();
             var serviceProvider = services.BuildServiceProvider();

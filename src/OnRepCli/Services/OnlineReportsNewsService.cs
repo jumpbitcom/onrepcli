@@ -6,7 +6,7 @@ using OnRepCli.Models;
 
 namespace OnRepCli.Services;
 
-public sealed class OnlineReportsNewsService(HttpClient httpClient, NewsPageParser parser) : INewsService
+public sealed class OnlineReportsNewsService(HttpClient httpClient) : INewsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -24,7 +24,7 @@ public sealed class OnlineReportsNewsService(HttpClient httpClient, NewsPagePars
             using var response = await httpClient.GetAsync(pageUri, cancellationToken);
             response.EnsureSuccessStatusCode();
             var html = await response.Content.ReadAsStringAsync(cancellationToken);
-            var snapshot = parser.Parse(pageUri, html);
+            var snapshot = NewsPageParser.Parse(pageUri, html);
             await SaveCacheAsync(pageUrl, snapshot, cancellationToken);
             return snapshot;
         }

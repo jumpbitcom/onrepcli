@@ -8,15 +8,30 @@
     <Color x:Key="Border">#E1E6E0</Color>
     <Color x:Key="White">#FFFFFF</Color>
 
-    <SolidColorBrush x:Key="ForestBrush" Color="{StaticResource Forest}" />
-    <SolidColorBrush x:Key="MeadowBrush" Color="{StaticResource Meadow}" />
-    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Sunglow}" />
-    <SolidColorBrush x:Key="PageBrush" Color="{StaticResource Cloud}" />
-    <SolidColorBrush x:Key="SidebarBrush" Color="#F0F3ED" />
-    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource Forest}" />
-    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Muted}" />
-    <SolidColorBrush x:Key="CloudBrush" Color="{StaticResource Cloud}" />
-    <SolidColorBrush x:Key="CloudMutedBrush" Color="#C8D5CD" />
-    <SolidColorBrush x:Key="CardBrush" Color="{StaticResource White}" />
-    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource Border}" />
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="ForestBrush" Color="{StaticResource Forest}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Sunglow}" />
+            <SolidColorBrush x:Key="PageBrush" Color="{StaticResource Cloud}" />
+            <SolidColorBrush x:Key="SidebarBrush" Color="#F0F3ED" />
+            <SolidColorBrush x:Key="TextBrush" Color="{StaticResource Forest}" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource Muted}" />
+            <SolidColorBrush x:Key="CloudBrush" Color="{StaticResource Cloud}" />
+            <SolidColorBrush x:Key="CloudMutedBrush" Color="#C8D5CD" />
+            <SolidColorBrush x:Key="CardBrush" Color="{StaticResource White}" />
+            <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource Border}" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="ForestBrush" Color="#00281F" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Sunglow}" />
+            <SolidColorBrush x:Key="PageBrush" Color="#001A14" />
+            <SolidColorBrush x:Key="SidebarBrush" Color="#00241C" />
+            <SolidColorBrush x:Key="TextBrush" Color="{StaticResource Cloud}" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#C8D5CD" />
+            <SolidColorBrush x:Key="CloudBrush" Color="{StaticResource Cloud}" />
+            <SolidColorBrush x:Key="CloudMutedBrush" Color="#C8D5CD" />
+            <SolidColorBrush x:Key="CardBrush" Color="#12382D" />
+            <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource Meadow}" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

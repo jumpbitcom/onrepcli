@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OnRepCli.Models;
+using OnRepCli.Resources;
 using OnRepCli.Services;
 
 namespace OnRepCli.ViewModels;
@@ -11,31 +13,32 @@ public partial class MainViewModel(INewsService newsService) : ViewModelBase
     private const string HomePageUrl = "https://www.onlinereports.ch/";
     private CancellationTokenSource? activeRefresh;
     private bool hasLoaded;
+    private bool isUpdatingSections;
 
     public ObservableCollection<NewsArticle> Articles { get; } = [];
-    public ObservableCollection<NewsSection> Sections { get; } = [new("All news", HomePageUrl)];
+    public ObservableCollection<NewsSection> Sections { get; } = [new(Strings.AllNews, HomePageUrl)];
 
     [ObservableProperty]
-    private NewsSection? selectedSection = new("All news", HomePageUrl);
+    private NewsSection? selectedSection = new(Strings.AllNews, HomePageUrl);
 
     [ObservableProperty]
     private bool isRefreshing;
 
     [ObservableProperty]
-    private string statusMessage = "The latest from Basel and the surrounding region.";
+    private string statusMessage = Strings.WelcomeStatus;
 
     [ObservableProperty]
     private bool hasArticles;
 
     partial void OnSelectedSectionChanged(NewsSection? value)
     {
-        if (hasLoaded && value is not null)
+        if (hasLoaded && !isUpdatingSections && value is not null)
         {
             RefreshCommand.Execute(null);
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     public async Task RefreshAsync()
     {
         using var refreshCancellation = new CancellationTokenSource();
@@ -44,29 +47,42 @@ public partial class MainViewModel(INewsService newsService) : ViewModelBase
 
         IsRefreshing = true;
         var section = SelectedSection ?? Sections[0];
-        StatusMessage = $"Loading {section.Name}…";
+        StatusMessage = Strings.LoadingStatus(section.Name);
 
         try
         {
             var snapshot = await newsService.GetLatestAsync(section.Url, refreshCancellation.Token);
+            refreshCancellation.Token.ThrowIfCancellationRequested();
             Articles.Clear();
             foreach (var article in snapshot.Articles.Take(3))
             {
                 Articles.Add(article);
             }
 
-            Sections.Clear();
-            foreach (var newsSection in snapshot.Sections)
+            if (!Sections.SequenceEqual(snapshot.Sections))
             {
-                Sections.Add(newsSection);
+                isUpdatingSections = true;
+                try
+                {
+                    Sections.Clear();
+                    foreach (var newsSection in snapshot.Sections)
+                    {
+                        Sections.Add(newsSection);
+                    }
+
+                    SelectedSection = Sections.FirstOrDefault(item => item.Url == section.Url) ?? Sections[0];
+                }
+                finally
+                {
+                    isUpdatingSections = false;
+                }
             }
 
-            SelectedSection = Sections.FirstOrDefault(item => item.Url == section.Url) ?? Sections[0];
             HasArticles = Articles.Count > 0;
-            var updateTime = snapshot.UpdatedAt.ToLocalTime().ToString("t");
+            var updateTime = snapshot.UpdatedAt.ToLocalTime().ToString("t", CultureInfo.CurrentCulture);
             StatusMessage = snapshot.IsOfflineCopy
-                ? $"Offline — showing saved headlines from {updateTime}."
-                : $"Updated at {updateTime}.";
+                ? Strings.OfflineStatus(updateTime)
+                : Strings.UpdatedStatus(updateTime);
         }
         catch (OperationCanceledException) when (refreshCancellation.IsCancellationRequested)
         {
@@ -76,7 +92,7 @@ public partial class MainViewModel(INewsService newsService) : ViewModelBase
         {
             Articles.Clear();
             HasArticles = false;
-            StatusMessage = "News could not be loaded. Check your connection and try again.";
+            StatusMessage = Strings.ErrorStatus;
         }
         finally
         {

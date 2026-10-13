@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OnRepCli.ViewModels"
         xmlns:models="using:OnRepCli.Models"
+        xmlns:resources="using:OnRepCli.Resources"
         x:Class="OnRepCli.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="Online Reports"
+        Title="{x:Static resources:Strings.AppTitle}"
         Width="1180"
         Height="820"
         MinWidth="760"
@@ -16,12 +17,12 @@
                 Padding="36,26">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="5">
-                    <TextBlock Text="ONLINE REPORTS"
+                    <TextBlock Text="{x:Static resources:Strings.BrandTitle}"
                                Foreground="{DynamicResource CloudBrush}"
                                FontSize="14"
                                FontWeight="Bold"
                                LetterSpacing="2" />
-                    <TextBlock Text="Basel, in the know."
+                    <TextBlock Text="{x:Static resources:Strings.BrandSubtitle}"
                                Foreground="{DynamicResource CloudBrush}"
                                FontSize="30"
                                FontWeight="SemiBold" />
@@ -31,11 +32,11 @@
                                AutomationProperties.LiveSetting="Polite" />
                 </StackPanel>
                 <Button Grid.Column="1"
-                        Content="Refresh"
+                        Content="{x:Static resources:Strings.Refresh}"
                         Command="{Binding RefreshCommand}"
                         Classes="refresh"
                         VerticalAlignment="Center"
-                        AutomationProperties.Name="Refresh latest news" />
+                        AutomationProperties.Name="{x:Static resources:Strings.RefreshAccessibleName}" />
             </Grid>
         </Border>
 
@@ -44,7 +45,7 @@
                     Background="{DynamicResource SidebarBrush}"
                     Padding="22,28">
                 <StackPanel Spacing="16">
-                    <TextBlock Text="RUBRICS"
+                    <TextBlock Text="{x:Static resources:Strings.Rubrics}"
                                FontSize="12"
                                FontWeight="Bold"
                                LetterSpacing="1.5"
@@ -53,7 +54,7 @@
                              SelectedItem="{Binding SelectedSection}"
                              Background="Transparent"
                              BorderThickness="0"
-                             AutomationProperties.Name="News rubrics">
+                             AutomationProperties.Name="{x:Static resources:Strings.SectionsAccessibleName}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="models:NewsSection">
                                 <TextBlock Text="{Binding Name}"
@@ -62,7 +63,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <TextBlock Text="Independent news from Basel and the region."
+                    <TextBlock Text="{x:Static resources:Strings.IndependentNews}"
                                Classes="muted"
                                TextWrapping="Wrap"
                                Margin="0,14,0,0" />
@@ -74,11 +75,11 @@
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Spacing="24" MaxWidth="760" HorizontalAlignment="Left">
                     <StackPanel Spacing="6">
-                        <TextBlock Text="The latest"
+                        <TextBlock Text="{x:Static resources:Strings.Latest}"
                                    FontSize="34"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource ForestBrush}" />
-                        <TextBlock Text="Your three newest stories from Online Reports."
+                        <TextBlock Text="{x:Static resources:Strings.LatestDescription}"
                                    Classes="muted"
                                    FontSize="16" />
                     </StackPanel>

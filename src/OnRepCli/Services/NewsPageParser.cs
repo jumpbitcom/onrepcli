@@ -1,20 +1,21 @@
 using System.Globalization;
 using HtmlAgilityPack;
 using OnRepCli.Models;
+using OnRepCli.Resources;
 
 namespace OnRepCli.Services;
 
-public sealed class NewsPageParser
+public static class NewsPageParser
 {
     private static readonly string[] CandidateClassNames = ["news", "article", "teaser", "story", "card"];
     private const string HomePage = "https://www.onlinereports.ch/";
 
-    public NewsSnapshot Parse(Uri pageUri, string html)
+    public static NewsSnapshot Parse(Uri pageUri, string html)
     {
         var document = new HtmlDocument();
         document.LoadHtml(html);
 
-        var sections = new List<NewsSection> { new("All news", HomePage) };
+        var sections = new List<NewsSection> { new(Strings.AllNews, HomePage) };
         foreach (var link in document.DocumentNode.SelectNodes("//nav//a[@href]")?.Cast<HtmlNode>() ?? [])
         {
             var name = CleanText(link.InnerText);
@@ -60,7 +61,7 @@ public sealed class NewsPageParser
             articles.Add(new NewsArticle(
                 title,
                 summaryText,
-                "News",
+                Strings.News,
                 publishedAt,
                 uri.AbsoluteUri));
         }
@@ -70,8 +71,10 @@ public sealed class NewsPageParser
             throw new InvalidDataException("No news articles were found on the Online Reports page.");
         }
 
-        var currentSection = sections.FirstOrDefault(section =>
-            section.Url.Equals(pageUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))?.Name ?? "News";
+        var currentSection = IsHomePage(pageUri)
+            ? "News"
+            : sections.FirstOrDefault(section =>
+                section.Url.Equals(pageUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))?.Name ?? Strings.News;
         var latestArticles = articles
             .Select((article, index) => (article, index))
             .OrderByDescending(item => item.article.PublishedAt ?? DateTimeOffset.MinValue)

@@ -7,7 +7,7 @@ public sealed class NewsPageParserTests
     private static readonly Uri HomePage = new("https://www.onlinereports.ch/");
 
     [Fact]
-    public void Parse_ReturnsThreeNewestInternalStoriesAndSections()
+    public void ParseReturnsThreeNewestInternalStoriesAndSections()
     {
         const string html = """
             <nav><a href="/rubrik/politik">Politik</a><a href="https://example.org">External</a></nav>
@@ -20,7 +20,7 @@ public sealed class NewsPageParserTests
             </main>
             """;
 
-        var snapshot = new NewsPageParser().Parse(HomePage, html);
+        var snapshot = NewsPageParser.Parse(HomePage, html);
 
         Assert.Equal(3, snapshot.Articles.Count);
         Assert.Equal(
@@ -33,10 +33,10 @@ public sealed class NewsPageParserTests
     }
 
     [Fact]
-    public void Parse_ThrowsWhenPageHasNoNewsHeadlines()
+    public void ParseThrowsWhenPageHasNoNewsHeadlines()
     {
         const string html = "<html><body><h1>Online Reports</h1></body></html>";
 
-        Assert.Throws<InvalidDataException>(() => new NewsPageParser().Parse(HomePage, html));
+        Assert.Throws<InvalidDataException>(() => NewsPageParser.Parse(HomePage, html));
     }
 }
