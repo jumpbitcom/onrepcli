@@ -15,7 +15,7 @@ public sealed class NewsPageParser
         document.LoadHtml(html);
 
         var sections = new List<NewsSection> { new("All news", HomePage) };
-        foreach (var link in document.DocumentNode.SelectNodes("//nav//a[@href]") ?? [])
+        foreach (var link in document.DocumentNode.SelectNodes("//nav//a[@href]")?.Cast<HtmlNode>() ?? [])
         {
             var name = CleanText(link.InnerText);
             var uri = GetInternalUri(pageUri, link.GetAttributeValue("href", ""));
@@ -32,7 +32,7 @@ public sealed class NewsPageParser
 
         var articles = new List<NewsArticle>();
         var seenUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var heading in document.DocumentNode.SelectNodes("//h1|//h2|//h3|//h4") ?? [])
+        foreach (var heading in document.DocumentNode.SelectNodes("//h1|//h2|//h3|//h4")?.Cast<HtmlNode>() ?? [])
         {
             var title = CleanText(heading.InnerText);
             if (title.Length < 12)

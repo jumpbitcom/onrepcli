@@ -9,7 +9,7 @@ build_property.AvaloniaNameGeneratorAttachDevTools = true
 build_property.AvaloniaUseCompiledBindingsByDefault = true
 build_property.AvaloniaMainPackageVersion = 12.1.4
 build_property.AvaloniaPreviewerNetCoreToolPath = /home/runner/.nuget/packages/avalonia/12.1.4/buildTransitive//../tools/net8.0/designer/Avalonia.Designer.HostApp.dll
-build_property.AvaloniaResourcePaths = /home/runner/work/onrepcli/onrepcli/src/OnRepCli/Assets/avalonia-logo.ico,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/App.axaml,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Styles/Theme.axaml,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Views/MainWindow.axaml
+build_property.AvaloniaResourcePaths = /home/runner/work/onrepcli/onrepcli/src/OnRepCli/Assets/avalonia-logo.ico,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/App.axaml,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Styles/Styles.axaml,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Styles/Theme.axaml,/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Views/MainWindow.axaml
 build_property.MvvmToolkitEnableINotifyPropertyChangingSupport = true
 build_property._MvvmToolkitIsUsingWindowsRuntimePack = false
 build_property.CsWinRTComponent = 
@@ -34,6 +34,9 @@ build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
 [/home/runner/work/onrepcli/onrepcli/src/OnRepCli/App.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Styles/Styles.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/home/runner/work/onrepcli/onrepcli/src/OnRepCli/Styles/Theme.axaml]

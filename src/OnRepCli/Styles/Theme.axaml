@@ -19,23 +19,4 @@
     <SolidColorBrush x:Key="CloudMutedBrush" Color="#C8D5CD" />
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource White}" />
     <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource Border}" />
-
-    <Style Selector="TextBlock.muted">
-        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
-    </Style>
-    <Style Selector="Border.article-card">
-        <Setter Property="Background" Value="{DynamicResource CardBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="Padding" Value="22" />
-    </Style>
-    <Style Selector="Button.refresh">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource ForestBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Padding" Value="20,11" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-    </Style>
 </ResourceDictionary>
