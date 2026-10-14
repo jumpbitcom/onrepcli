@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <!-- Jump Bit resources. Merge in App.axaml:
+  <!-- Jump Bit resources, aligned with the Jump Bit design system
+       (https://claude.ai/artifact/FchxsJbujLEuHSzFKx4VK8). Merge in App.axaml:
        <Application.Resources>
          <ResourceDictionary>
            <ResourceDictionary.MergedDictionaries>
@@ -8,7 +9,8 @@
            </ResourceDictionary.MergedDictionaries>
          </ResourceDictionary>
        </Application.Resources>
-       and keep RequestedThemeVariant="Default" so light/dark follows the OS. -->
+       and keep RequestedThemeVariant="Default" so light/dark follows the OS.
+       Copy assets/font/*.ttf to Assets/Fonts/ and include Assets/** as AvaloniaResource so Inter resolves. -->
 
   <!-- Brand palette (theme independent) -->
   <Color x:Key="JbInk">#181818</Color>
@@ -30,10 +32,8 @@
   <SolidColorBrush x:Key="JbInkBrush" Color="{StaticResource JbInk}" />
   <SolidColorBrush x:Key="JbCharcoalBrush" Color="{StaticResource JbCharcoal}" />
   <SolidColorBrush x:Key="JbWhiteBrush" Color="{StaticResource JbWhite}" />
-  <SolidColorBrush x:Key="JbSuccessBrush" Color="{StaticResource JbSuccess}" />
-  <SolidColorBrush x:Key="JbWarningBrush" Color="{StaticResource JbWarning}" />
-  <SolidColorBrush x:Key="JbDangerBrush" Color="{StaticResource JbDanger}" />
-  <SolidColorBrush x:Key="JbInfoBrush" Color="{StaticResource JbInfo}" />
+  <!-- Info text on dark fills in either theme (landing gradient, charcoal panels) -->
+  <SolidColorBrush x:Key="JbOnDarkInfoBrush" Color="#90CAF9" />
 
   <LinearGradientBrush x:Key="JbBrandGradientBrush" StartPoint="0%,0%" EndPoint="100%,100%">
     <GradientStop Color="{StaticResource JbInk}" Offset="0" />
@@ -45,8 +45,8 @@
   <CornerRadius x:Key="JbRadiusSm">4</CornerRadius>
   <CornerRadius x:Key="JbRadiusMd">8</CornerRadius>
   <CornerRadius x:Key="JbRadiusLg">14</CornerRadius>
-  <FontFamily x:Key="JbBrandFont">Jost, Futura, Century Gothic, $Default</FontFamily>
-  <FontFamily x:Key="JbBodyFont">$Default</FontFamily>
+  <!-- Inter is the only typeface: headings, body text and buttons -->
+  <FontFamily x:Key="JbBodyFont">avares://YourApp/Assets/Fonts#Inter, Arial, $Default</FontFamily>
   <FontFamily x:Key="JbMonoFont">Menlo, Consolas, Cascadia Mono, monospace</FontFamily>
 
   <!-- Semantic brushes per theme variant. Use {DynamicResource JbBackgroundBrush} etc. in views. -->
@@ -73,6 +73,10 @@
       <SolidColorBrush x:Key="JbAccentBrush" Color="#F5E8A0" />
       <SolidColorBrush x:Key="JbOnAccentBrush" Color="#181818" />
       <SolidColorBrush x:Key="JbDisabledBrush" Color="#B8B8B8" />
+      <SolidColorBrush x:Key="JbSuccessBrush" Color="{StaticResource JbSuccess}" />
+      <SolidColorBrush x:Key="JbWarningBrush" Color="{StaticResource JbWarning}" />
+      <SolidColorBrush x:Key="JbDangerBrush" Color="{StaticResource JbDanger}" />
+      <SolidColorBrush x:Key="JbInfoBrush" Color="{StaticResource JbInfo}" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="Dark">
       <!-- Fluent accent override -->
@@ -96,6 +100,10 @@
       <SolidColorBrush x:Key="JbAccentBrush" Color="#F5E8A0" />
       <SolidColorBrush x:Key="JbOnAccentBrush" Color="#181818" />
       <SolidColorBrush x:Key="JbDisabledBrush" Color="#656565" />
+      <SolidColorBrush x:Key="JbSuccessBrush" Color="#66BB6A" />
+      <SolidColorBrush x:Key="JbWarningBrush" Color="#FFA726" />
+      <SolidColorBrush x:Key="JbDangerBrush" Color="#EF9A9A" />
+      <SolidColorBrush x:Key="JbInfoBrush" Color="#64B5F6" />
     </ResourceDictionary>
   </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

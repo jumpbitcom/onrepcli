@@ -1,5 +1,5 @@
 {
-  "$description": "Jump Bit design tokens. Source of truth for jumpbit-theme.css and jumpbit-theme.axaml. Brand colors are taken from the Brand Kit color palette; derived and functional colors are marked.",
+  "$description": "Jump Bit design tokens, aligned with the Jump Bit design system (https://claude.ai/artifact/FchxsJbujLEuHSzFKx4VK8). Source of truth for jumpbit-theme.css and jumpbit-theme.axaml. Brand colors are taken from the Brand Kit color palette; derived and functional colors are marked.",
   "brand": {
     "ink":      { "value": "#181818", "role": "darkest, text on light, page background (dark theme)" },
     "charcoal": { "value": "#323232", "role": "primary brand color, logo background, app icon" },
@@ -15,15 +15,19 @@
     "gold":    { "value": "#f5e8a0", "role": "optional highlight accent; approximated from the gold-foil mockup, not in the official palette" }
   },
   "functional": {
-    "success": { "value": "#2e7d32" },
-    "warning": { "value": "#b26a00" },
-    "danger":  { "value": "#c62828" },
-    "info":    { "value": "#1565c0" }
+    "success": { "value": "#2e7d32", "dark": "#66bb6a" },
+    "warning": { "value": "#b26a00", "dark": "#ffa726", "role": "4.2:1 on white; prefer 24px+ or bold in the light theme" },
+    "danger":  { "value": "#c62828", "dark": "#ef9a9a" },
+    "info":    { "value": "#1565c0", "dark": "#64b5f6" },
+    "onDarkInfo": { "value": "#90caf9", "role": "info text on dark fills in either theme (landing gradient, charcoal panels)" }
   },
   "typography": {
-    "brand": "Jost, Futura, 'Century Gothic', system-ui, sans-serif",
-    "body": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
-    "mono": "ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+    "body": "Inter, Arial, sans-serif",
+    "mono": "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+    "fonts": [
+      { "family": "Inter", "file": "font/Inter-VariableFont_opsz,wght.ttf", "weight": "100 900", "style": "normal" },
+      { "family": "Inter", "file": "font/Inter-Italic-VariableFont_opsz,wght.ttf", "weight": "100 900", "style": "italic" }
+    ]
   },
   "radius": { "sm": 4, "md": 8, "lg": 14 }
 }

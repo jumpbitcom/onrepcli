@@ -6,21 +6,27 @@
   <Style Selector="Window">
     <Setter Property="Background" Value="{DynamicResource JbBackgroundBrush}" />
     <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
   </Style>
 
   <Style Selector="TextBlock.h1">
-    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
     <Setter Property="FontSize" Value="42" />
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.h2">
-    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
     <Setter Property="FontSize" Value="34" />
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.h3">
-    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
     <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h4">
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
+    <Setter Property="FontSize" Value="20" />
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="TextBlock.muted">
@@ -32,7 +38,7 @@
     <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource JbPrimaryBrush}" />
     <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
-    <Setter Property="FontFamily" Value="{StaticResource JbBrandFont}" />
+    <Setter Property="FontFamily" Value="{StaticResource JbBodyFont}" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="Padding" Value="20,10" />
   </Style>

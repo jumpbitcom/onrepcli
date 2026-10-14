@@ -1,6 +1,24 @@
 /* Jump Bit theme — generated from the Brand Kit palette (see jumpbit-tokens.json).
+   Aligned with the Jump Bit design system: https://claude.ai/artifact/FchxsJbujLEuHSzFKx4VK8
    Usage: <link rel="stylesheet" href="/assets/jumpbit-theme.css">
-   Dark mode follows the OS; force it with <html class="theme-dark"> or <html class="theme-light">. */
+   Dark mode follows the OS; force it with <html class="theme-dark"> or <html class="theme-light">
+   (data-theme="dark" / data-theme="light" on <html> works as well). */
+
+/* Inter is the only typeface; the variable fonts in assets/font cover weights 100–900. */
+@font-face {
+	font-family: Inter;
+	src: url('font/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: Inter;
+	src: url('font/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: italic;
+	font-display: swap;
+}
 
 :root {
 	/* Brand palette */
@@ -40,6 +58,14 @@
 	--color-focus: var(--jb-charcoal);
 	--color-disabled: var(--jb-silver);
 
+	/* Status text; always paired with a word, never colour alone */
+	--color-success: var(--jb-success);
+	--color-warning: var(--jb-warning);
+	--color-danger: var(--jb-danger);
+	--color-info: var(--jb-info);
+	/* Info text on dark fills in either theme (landing gradient, charcoal panels) */
+	--color-on-dark-info: #90caf9;
+
 	/* Gradients (background of the logo mockups) */
 	--gradient-brand: linear-gradient(135deg, var(--jb-ink) 0%, var(--jb-charcoal) 45%, var(--jb-graphite) 100%);
 	--gradient-subtle: linear-gradient(150deg, var(--jb-paper) 19%, var(--jb-white) 100%);
@@ -50,9 +76,7 @@
 	--shadow-lg: 0 16px 32px rgba(24, 24, 24, 0.14), 0 4px 8px rgba(24, 24, 24, 0.08);
 
 	/* Typography */
-	--font-system: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-	--font-body: var(--font-system);
-	--font-brand: Jost, Futura, 'Century Gothic', var(--font-system);
+	--font-body: Inter, Arial, sans-serif;
 	--font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
 	--text-sm: 0.875rem;
@@ -74,7 +98,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root:not(.theme-light) {
+	:root:not(.theme-light):not([data-theme='light']) {
 		--color-bg: var(--jb-ink);
 		--color-surface: var(--jb-charcoal);
 		--color-surface-raised: #262626;
@@ -88,6 +112,10 @@
 		--color-link: var(--jb-white);
 		--color-focus: var(--jb-white);
 		--color-disabled: var(--jb-slate);
+		--color-success: #66bb6a;
+		--color-warning: #ffa726;
+		--color-danger: #ef9a9a;
+		--color-info: #64b5f6;
 		--gradient-subtle: linear-gradient(150deg, var(--jb-charcoal) 19%, var(--jb-ink) 100%);
 		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
 		--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
@@ -96,7 +124,8 @@
 	}
 }
 
-:root.theme-dark {
+:root.theme-dark,
+:root[data-theme='dark'] {
 	--color-bg: var(--jb-ink);
 	--color-surface: var(--jb-charcoal);
 	--color-surface-raised: #262626;
@@ -110,6 +139,10 @@
 	--color-link: var(--jb-white);
 	--color-focus: var(--jb-white);
 	--color-disabled: var(--jb-slate);
+	--color-success: #66bb6a;
+	--color-warning: #ffa726;
+	--color-danger: #ef9a9a;
+	--color-info: #64b5f6;
 	--gradient-subtle: linear-gradient(150deg, var(--jb-charcoal) 19%, var(--jb-ink) 100%);
 	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
 	--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
@@ -132,7 +165,7 @@ body {
 }
 
 h1, h2, h3, h4 {
-	font-family: var(--font-brand);
+	font-family: var(--font-body);
 	font-weight: 600;
 	line-height: 1.15;
 	letter-spacing: 0.02em;
@@ -158,7 +191,7 @@ code, pre { font-family: var(--font-mono); }
 	gap: 0.5rem;
 	padding: 0.65rem 1.4rem;
 	font: inherit;
-	font-family: var(--font-brand);
+	font-family: var(--font-body);
 	font-weight: 600;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -196,11 +229,12 @@ input::placeholder, textarea::placeholder { color: var(--color-text-muted); }
 }
 
 /* Status */
-.text-success { color: var(--jb-success); }
-.text-warning { color: var(--jb-warning); }
-.text-danger { color: var(--jb-danger); }
-.text-info { color: var(--jb-info); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+.text-info { color: var(--color-info); }
 .text-muted { color: var(--color-text-muted); }
+.landing .text-info, .on-dark .text-info { color: var(--color-on-dark-info); }
 
 /* Centered landing layout (logo, headline, call to action, footer) */
 .landing {
