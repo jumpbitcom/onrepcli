@@ -1,0 +1,237 @@
+<!-- Main three-pane OnlineReports reader window. -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OnlineReports.Client.ViewModels"
+        xmlns:models="using:OnlineReports.Client.Models"
+        xmlns:localization="using:OnlineReports.Client.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="OnlineReports.Client.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Online Report"
+        Width="1180"
+        Height="780"
+        MinWidth="900"
+        MinHeight="620">
+    <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0"
+                Background="{DynamicResource JbSurfaceRaisedBrush}"
+                BorderBrush="{DynamicResource JbBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="28,18">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="18">
+                <StackPanel VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="Online Report" FontSize="24" FontWeight="Bold" />
+                    <TextBlock Text="{Binding Text.Tagline}" Classes="muted" FontSize="12" />
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="{Binding Text.Refresh}"
+                        Command="{Binding RefreshCommand}"
+                        IsEnabled="{Binding !IsRefreshing}"
+                        Classes="primary"
+                        VerticalAlignment="Center" />
+
+                <Button Grid.Column="2"
+                        Content="i"
+                        ToolTip.Tip="{Binding Text.SyncInformation}"
+                        AutomationProperties.Name="{Binding Text.SyncInformation}"
+                        VerticalAlignment="Center">
+                    <Button.Flyout>
+                        <Flyout>
+                            <TextBlock Text="{Binding SyncInfo}"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="300"
+                                       Margin="8" />
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+
+                <ComboBox Grid.Column="3"
+                          ItemsSource="{Binding Languages}"
+                          SelectedItem="{Binding Language}"
+                          Width="132"
+                          VerticalAlignment="Center"
+                          AutomationProperties.Name="Language" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="280,*">
+            <Border Grid.Column="0"
+                    Background="{DynamicResource JbSurfaceBrush}"
+                    BorderBrush="{DynamicResource JbBorderBrush}"
+                    BorderThickness="0,0,1,0"
+                    Padding="18">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Text="{Binding Text.Stories}"
+                               Classes="h4"
+                               Margin="10,4,10,16" />
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Sections}"
+                             SelectedItem="{Binding SelectedSection}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="localization:SectionOption">
+                                <TextBlock Text="{Binding Title}" Padding="10,9" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Grid.Row="2"
+                               Text="{Binding StatusText}"
+                               Classes="muted"
+                               TextWrapping="Wrap"
+                               Margin="10,14,10,4"
+                               AutomationProperties.LiveSetting="Polite" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1"
+                  RowDefinitions="Auto,*"
+                  Margin="32,24">
+                <Grid ColumnDefinitions="*,Auto,Auto"
+                      ColumnSpacing="16"
+                      Margin="0,0,0,20">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding SelectedSection.Title}"
+                                   Classes="h3"
+                                   IsVisible="{Binding !IsArticleSelected}" />
+                        <TextBlock Text="{Binding SelectedArticle.Title}"
+                                   Classes="h3"
+                                   IsVisible="{Binding IsArticleSelected}" />
+                        <TextBlock Text="{Binding SyncInfo}" Classes="muted" />
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Content="{Binding Text.Refresh}"
+                            Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding !IsRefreshing}"
+                            VerticalAlignment="Center"
+                            Classes="primary" />
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding Text.Updating}"
+                               Classes="muted"
+                               IsVisible="{Binding IsRefreshing}"
+                               VerticalAlignment="Center" />
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <ListBox ItemsSource="{Binding VisibleArticles}"
+                             SelectedItem="{Binding SelectedArticle}"
+                             IsVisible="{Binding !IsArticleSelected}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:NewsArticle">
+                                <Border Classes="card" Margin="0,0,0,14">
+                                    <StackPanel Spacing="9">
+                                        <TextBlock Text="{Binding Title}"
+                                                   FontSize="21"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding PublishedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                                   Classes="muted"
+                                                   FontSize="13" />
+                                        <TextBlock Text="{Binding Description}"
+                                                   TextWrapping="Wrap"
+                                                   MaxLines="3" />
+                                        <ItemsControl ItemsSource="{Binding Categories}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Border Background="{DynamicResource JbSurfaceBrush}"
+                                                            CornerRadius="{StaticResource JbRadiusSm}"
+                                                            Padding="8,3"
+                                                            Margin="0,0,6,0">
+                                                        <TextBlock Text="{Binding}"
+                                                                   FontSize="11"
+                                                                   Classes="muted" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock Text="{Binding EmptyStateText}"
+                               Classes="muted"
+                               FontSize="16"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding !IsArticleSelected}" />
+
+                    <ScrollViewer IsVisible="{Binding IsArticleSelected}">
+                        <StackPanel Spacing="16" MaxWidth="900">
+                            <Button Content="{Binding Text.BackToStories}"
+                                    Command="{Binding BackToStoriesCommand}"
+                                    HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding SelectedArticle.Title}"
+                                       Classes="h2"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding PublishedText}" Classes="muted" />
+                            <TextBlock Text="{Binding AuthorText}" Classes="muted" />
+                            <TextBlock Text="{Binding SectionsText}" Classes="muted" />
+                            <Image Source="{Binding SelectedArticle.LocalImagePath, Converter={StaticResource LocalImageConverter}}"
+                                   IsVisible="{Binding HasArticleImage}"
+                                   MaxHeight="420"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Left" />
+                            <Button Content="{Binding Text.LoadImage}"
+                                    Command="{Binding LoadImageCommand}"
+                                    IsVisible="{Binding CanLoadImage}"
+                                    IsEnabled="{Binding !IsLoadingImage}"
+                                    HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding SelectedArticleBody}"
+                                       FontSize="16"
+                                       LineHeight="26"
+                                       TextWrapping="Wrap" />
+                            <StackPanel Spacing="8" IsVisible="{Binding HasMediaLinks}">
+                                <TextBlock Text="{Binding Text.MediaLinks}" Classes="h4" />
+                                <ItemsControl ItemsSource="{Binding MediaLinks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:MediaLinkViewModel">
+                                            <Button Content="{Binding Url}"
+                                                    Command="{Binding OpenCommand}"
+                                                    CommandParameter="{Binding Url}"
+                                                    HorizontalAlignment="Left"
+                                                    MaxWidth="760" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                            <Button Content="{Binding Text.OpenInBrowser}"
+                                    Command="{Binding OpenArticleCommand}"
+                                    Classes="primary"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,8,0,24" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1"
+              Background="{DynamicResource JbBackgroundBrush}"
+              IsVisible="{Binding !IsInitialized}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="12">
+                <TextBlock Text="{Binding Text.Updating}"
+                           Classes="h3"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding StatusText}"
+                           Classes="muted"
+                           TextWrapping="Wrap"
+                           MaxWidth="440"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
