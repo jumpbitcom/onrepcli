@@ -11,23 +11,21 @@ It has 3 parts, top row is the header, left side is around 30% and show the sect
 
 ### Header
 It has no Logo, just show on the header "Online Report" in bold and "Macht bekannt." in small letters non bold.
-Show always an update button. This button triggers the scan of new news articles.
-Show a small "i" info icon next to the update button. If you click on it a popup will show the last sync date / time of the last update.
-On start of the application make by default an udpate before showing the main page.
-It has a dropbox button to select the language, start with German as default.
+Show always an update button. This button triggers the scan of new news articles. On pressing the udpate button it reads all news articel in the background with all details including the article image just below the articel titel. It validates what is already available and only saves new news articles. Mark new articles with a small green circle on the top right of the articel summary box.
+
+Show a small "i" info icon (round form) next to the update button. If you click on it a popup will show the last sync date / time of the last update and how many articles were loaded.
+On start of the application make by default an udpate before showing the main page and show a running update message while loading.
+It has a dropbox button to select the language, start with German as default. Make this dropbox button similar to the normal button with rounded edges.
 
 ### Left side
-- Sections: all stories, News, Politics, Economy, Culture & Society, and Columns. It has a menu showing the different rubrics of onlinereports.ch
+- Sections: all stories, News, Politics, Economy, Culture & Society, and Columns. It has a menu showing the different rubrics of onlinereports.ch. Make the boxes with rounded edges.
 
 ### Right side - Main Page
-It shows the last update date and an update button.
-On pressing the udpate button it reads all news articel in the background with all details but without images and videos. It validates what is already available and only saves new news articles.
-- Shows the three newest stories for the selected OnlineReports section.
+- Shows the three newest acrticel stories for the selected OnlineReports section as articel summary box.
 
 
 ### Right side - Detailed news page
-Show a detailed news page with all information from the selected news articel. Load images or videos on demand.
-- Does not download article images during feed updates. Readers can request the article image from its detail view by a button.
+Show a detailed news page with all information from the selected news articel.
 - The main image / video is always the first picture of the articel just below the header of the article
 - Offer to see full article within your default browser at the bottom of the article. Opens a native article view with the full text, author, publication time, sections, and media links.
 
