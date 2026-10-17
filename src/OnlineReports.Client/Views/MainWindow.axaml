@@ -35,6 +35,7 @@
 
                 <Button Grid.Column="2"
                         Content="i"
+                        Classes="info"
                         ToolTip.Tip="{Binding Text.SyncInformation}"
                         AutomationProperties.Name="{Binding Text.SyncInformation}"
                         VerticalAlignment="Center">
@@ -42,18 +43,22 @@
                         <Flyout>
                             <TextBlock Text="{Binding SyncInfo}"
                                        TextWrapping="Wrap"
-                                       MaxWidth="300"
+                                       MaxWidth="340"
                                        Margin="8" />
                         </Flyout>
                     </Button.Flyout>
                 </Button>
 
-                <ComboBox Grid.Column="3"
-                          ItemsSource="{Binding Languages}"
-                          SelectedItem="{Binding Language}"
-                          Width="132"
-                          VerticalAlignment="Center"
-                          AutomationProperties.Name="Language" />
+                <Border Grid.Column="3"
+                        Classes="language-picker"
+                        VerticalAlignment="Center">
+                    <ComboBox ItemsSource="{Binding Languages}"
+                              SelectedItem="{Binding Language}"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Width="132"
+                              AutomationProperties.Name="Language" />
+                </Border>
             </Grid>
         </Border>
 
@@ -70,11 +75,14 @@
                     <ListBox Grid.Row="1"
                              ItemsSource="{Binding Sections}"
                              SelectedItem="{Binding SelectedSection}"
+                             Classes="sections"
                              Background="Transparent"
                              BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="localization:SectionOption">
-                                <TextBlock Text="{Binding Title}" Padding="10,9" />
+                                <Border Classes="section-item">
+                                    <TextBlock Text="{Binding Title}" />
+                                </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -124,37 +132,45 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="models:NewsArticle">
                                 <Border Classes="card" Margin="0,0,0,14">
-                                    <StackPanel Spacing="9">
-                                        <TextBlock Text="{Binding Title}"
-                                                   FontSize="21"
-                                                   FontWeight="SemiBold"
-                                                   TextWrapping="Wrap" />
-                                        <TextBlock Text="{Binding PublishedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
-                                                   Classes="muted"
-                                                   FontSize="13" />
-                                        <TextBlock Text="{Binding Description}"
-                                                   TextWrapping="Wrap"
-                                                   MaxLines="3" />
-                                        <ItemsControl ItemsSource="{Binding Categories}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <Border Background="{DynamicResource JbSurfaceBrush}"
-                                                            CornerRadius="{StaticResource JbRadiusSm}"
-                                                            Padding="8,3"
-                                                            Margin="0,0,6,0">
-                                                        <TextBlock Text="{Binding}"
-                                                                   FontSize="11"
-                                                                   Classes="muted" />
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
+                                    <Grid>
+                                        <StackPanel Spacing="9" Margin="0,0,18,0">
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontSize="21"
+                                                       FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding PublishedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                                       Classes="muted"
+                                                       FontSize="13" />
+                                            <TextBlock Text="{Binding Description}"
+                                                       TextWrapping="Wrap"
+                                                       MaxLines="3" />
+                                            <ItemsControl ItemsSource="{Binding Categories}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Border Background="{DynamicResource JbSurfaceBrush}"
+                                                                CornerRadius="{StaticResource JbRadiusSm}"
+                                                                Padding="8,3"
+                                                                Margin="0,0,6,0">
+                                                            <TextBlock Text="{Binding}"
+                                                                       FontSize="11"
+                                                                       Classes="muted" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                        <Ellipse Width="10"
+                                                 Height="10"
+                                                 Fill="{DynamicResource JbSuccessBrush}"
+                                                 HorizontalAlignment="Right"
+                                                 VerticalAlignment="Top"
+                                         IsVisible="{Binding IsNew}" />
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -175,9 +191,6 @@
                             <TextBlock Text="{Binding SelectedArticle.Title}"
                                        Classes="h2"
                                        TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding PublishedText}" Classes="muted" />
-                            <TextBlock Text="{Binding AuthorText}" Classes="muted" />
-                            <TextBlock Text="{Binding SectionsText}" Classes="muted" />
                             <Image Source="{Binding SelectedArticle.LocalImagePath, Converter={StaticResource LocalImageConverter}}"
                                    IsVisible="{Binding HasArticleImage}"
                                    MaxHeight="420"
@@ -188,6 +201,9 @@
                                     IsVisible="{Binding CanLoadImage}"
                                     IsEnabled="{Binding !IsLoadingImage}"
                                     HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding PublishedText}" Classes="muted" />
+                            <TextBlock Text="{Binding AuthorText}" Classes="muted" />
+                            <TextBlock Text="{Binding SectionsText}" Classes="muted" />
                             <TextBlock Text="{Binding SelectedArticleBody}"
                                        FontSize="16"
                                        LineHeight="26"

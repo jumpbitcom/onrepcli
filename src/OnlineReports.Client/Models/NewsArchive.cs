@@ -3,4 +3,5 @@ namespace OnlineReports.Client.Models;
 
 public sealed record NewsArchive(
     DateTimeOffset? LastSyncAt,
+    int LoadedArticleCount,
     IReadOnlyList<NewsArticle> Articles);

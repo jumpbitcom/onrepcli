@@ -18,5 +18,8 @@ public sealed record NewsArticle
     public string[] MediaLinks { get; init; } = [];
 
     [JsonIgnore]
+    public bool IsNew { get; init; }
+
+    [JsonIgnore]
     public bool HasLocalImage => !string.IsNullOrWhiteSpace(LocalImagePath) && File.Exists(LocalImagePath);
 }

@@ -48,6 +48,46 @@
     <Setter Property="TextElement.Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
   </Style>
 
+  <Style Selector="Button.info">
+    <Setter Property="Background" Value="{DynamicResource JbSurfaceBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource JbBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="20" />
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Border.language-picker">
+    <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource JbBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
+    <Setter Property="Padding" Value="4,2" />
+  </Style>
+
+  <Style Selector="Border.section-item">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
+    <Setter Property="Padding" Value="10,9" />
+    <Setter Property="Margin" Value="0,2" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:pointerover Border.section-item">
+    <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:selected Border.section-item">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BorderBrush" Value="{DynamicResource JbInfoBrush}" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+
   <Style Selector="Border.card">
     <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource JbBorderBrush}" />

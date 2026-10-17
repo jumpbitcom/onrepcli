@@ -20,12 +20,12 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
     {
         if (!File.Exists(_archivePath))
         {
-            return new NewsArchive(null, []);
+            return new NewsArchive(null, 0, []);
         }
 
         await using var stream = File.OpenRead(_archivePath);
         return await JsonSerializer.DeserializeAsync<NewsArchive>(stream, JsonOptions, cancellationToken)
-            ?? new NewsArchive(null, []);
+            ?? new NewsArchive(null, 0, []);
     }
 
     public async Task<RefreshResult> RefreshAsync(CancellationToken cancellationToken = default)
@@ -34,9 +34,16 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
         feedResponse.EnsureSuccessStatusCode();
         var feedXml = await feedResponse.Content.ReadAsStringAsync(cancellationToken);
         var feedEntries = RssFeedParser.Parse(feedXml);
+        var archive = await LoadArchiveAsync(cancellationToken);
         var archived = new ConcurrentDictionary<string, NewsArticle>(
-            (await LoadArchiveAsync(cancellationToken)).Articles.ToDictionary(article => article.Id, StringComparer.Ordinal),
+            archive.Articles
+                .Select(article => article with { IsNew = false })
+                .ToDictionary(article => article.Id, StringComparer.Ordinal),
             StringComparer.Ordinal);
+        var newlyAddedIds = feedEntries
+            .Where(entry => !archived.ContainsKey(entry.Id))
+            .Select(entry => entry.Id)
+            .ToHashSet(StringComparer.Ordinal);
         var pageErrors = new ConcurrentBag<string>();
         using var concurrencyLimit = new SemaphoreSlim(3);
 
@@ -47,13 +54,48 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
                 await concurrencyLimit.WaitAsync(cancellationToken);
                 try
                 {
+                    archived.TryGetValue(entry.Id, out var priorArticle);
                     var result = await FetchArticleAsync(entry, cancellationToken);
                     if (result.Error is not null)
                     {
                         pageErrors.Add($"{entry.Title}: {result.Error}");
+                        if (priorArticle is not null)
+                        {
+                            return;
+                        }
                     }
 
-                    archived[entry.Id] = result.Article;
+                    var article = result.Article;
+                    if (priorArticle?.HasLocalImage == true)
+                    {
+                        article = article with { LocalImagePath = priorArticle.LocalImagePath };
+                    }
+                    else if (!string.IsNullOrWhiteSpace(article.ImageUrl))
+                    {
+                        try
+                        {
+                            var imagePath = await DownloadImageAsync(article.Id, article.ImageUrl, cancellationToken);
+                            article = article with { LocalImagePath = imagePath };
+                        }
+                        catch (HttpRequestException exception)
+                        {
+                            pageErrors.Add($"{entry.Title}: {exception.Message}");
+                        }
+                        catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+                        {
+                            pageErrors.Add($"{entry.Title}: {exception.Message}");
+                        }
+                        catch (InvalidDataException exception)
+                        {
+                            pageErrors.Add($"{entry.Title}: {exception.Message}");
+                        }
+                        catch (InvalidOperationException exception)
+                        {
+                            pageErrors.Add($"{entry.Title}: {exception.Message}");
+                        }
+                    }
+
+                    archived[entry.Id] = article with { IsNew = newlyAddedIds.Contains(entry.Id) };
                 }
                 finally
                 {
@@ -71,9 +113,15 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
         var orderedArticles = archived.Values
             .OrderByDescending(article => article.PublishedAt)
             .ToArray();
-        await SaveArchiveAsync(new NewsArchive(DateTimeOffset.UtcNow, orderedArticles), cancellationToken);
+        var completedAt = DateTimeOffset.UtcNow;
+        await SaveArchiveAsync(new NewsArchive(completedAt, feedEntries.Count, orderedArticles), cancellationToken);
 
-        return new RefreshResult(orderedArticles, feedEntries.Count, pageErrors.ToArray(), DateTimeOffset.UtcNow);
+        return new RefreshResult(
+            orderedArticles,
+            feedEntries.Count,
+            newlyAddedIds,
+            pageErrors.ToArray(),
+            completedAt);
     }
 
     public async Task<NewsArticle> LoadImageAsync(NewsArticle article, CancellationToken cancellationToken = default)
@@ -84,7 +132,28 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
             return article;
         }
 
-        if (!Uri.TryCreate(article.ImageUrl, UriKind.Absolute, out var imageUri)
+        var imagePath = await DownloadImageAsync(article.Id, article.ImageUrl, cancellationToken);
+
+        var updatedArticle = article with { LocalImagePath = imagePath };
+        var archive = await LoadArchiveAsync(cancellationToken);
+        var articles = archive.Articles
+            .Select(existing => existing.Id == article.Id ? updatedArticle : existing)
+            .ToArray();
+        if (articles.All(existing => existing.Id != article.Id))
+        {
+            articles = [.. articles, updatedArticle];
+        }
+
+        await SaveArchiveAsync(archive with { Articles = articles }, cancellationToken);
+        return updatedArticle;
+    }
+
+    private async Task<string> DownloadImageAsync(
+        string articleId,
+        string? imageUrl,
+        CancellationToken cancellationToken)
+    {
+        if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri)
             || imageUri.Scheme != Uri.UriSchemeHttps
             || !imageUri.Host.Equals("media-onlinereports.wepublish.cloud", StringComparison.OrdinalIgnoreCase))
         {
@@ -93,12 +162,18 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
 
         using var response = await httpClient.GetAsync(imageUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
+        var mediaType = response.Content.Headers.ContentType?.MediaType;
+        if (mediaType is not ("image/jpeg" or "image/png" or "image/gif" or "image/webp"))
+        {
+            throw new InvalidDataException("The publisher returned an unsupported article image format.");
+        }
+
         if (response.Content.Headers.ContentLength is > MaxImageBytes)
         {
             throw new InvalidDataException("The article image is larger than the 10 MB download limit.");
         }
 
-        var extension = response.Content.Headers.ContentType?.MediaType switch
+        var extension = mediaType switch
         {
             "image/jpeg" => ".jpg",
             "image/png" => ".png",
@@ -108,7 +183,7 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
         };
         var imageDirectory = Path.Combine(archiveDirectory, "images");
         Directory.CreateDirectory(imageDirectory);
-        var imageName = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(article.Id))) + extension;
+        var imageName = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(articleId))) + extension;
         var imagePath = Path.Combine(imageDirectory, imageName);
 
         await using (var source = await response.Content.ReadAsStreamAsync(cancellationToken))
@@ -129,18 +204,7 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
             }
         }
 
-        var updatedArticle = article with { LocalImagePath = imagePath };
-        var archive = await LoadArchiveAsync(cancellationToken);
-        var articles = archive.Articles
-            .Select(existing => existing.Id == article.Id ? updatedArticle : existing)
-            .ToArray();
-        if (articles.All(existing => existing.Id != article.Id))
-        {
-            articles = [.. articles, updatedArticle];
-        }
-
-        await SaveArchiveAsync(archive with { Articles = articles }, cancellationToken);
-        return updatedArticle;
+        return imagePath;
     }
 
     private async Task<(NewsArticle Article, string? Error)> FetchArticleAsync(
@@ -213,5 +277,6 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
 public sealed record RefreshResult(
     IReadOnlyList<NewsArticle> Articles,
     int FeedCount,
+    IReadOnlySet<string> NewlyAddedIds,
     IReadOnlyList<string> ArticleErrors,
     DateTimeOffset CompletedAt);

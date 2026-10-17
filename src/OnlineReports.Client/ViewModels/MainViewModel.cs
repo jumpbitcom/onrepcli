@@ -46,6 +46,9 @@ public partial class MainViewModel : ViewModelBase
     private DateTimeOffset? lastSyncAt;
 
     [ObservableProperty]
+    private int lastSyncCount;
+
+    [ObservableProperty]
     private string statusText = string.Empty;
 
     [ObservableProperty]
@@ -60,7 +63,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsArticleSelected => SelectedArticle is not null;
     public string SyncInfo => LastSyncAt is null
         ? Text.NeverUpdated
-        : $"{Text.LastUpdated}: {LastSyncAt.Value.ToLocalTime().ToString("f", CurrentCulture)}";
+        : $"{Text.LastUpdated}: {LastSyncAt.Value.ToLocalTime().ToString("f", CurrentCulture)}{Environment.NewLine}{string.Format(CurrentCulture, Text.ArticlesLoaded, LastSyncCount)}";
     public string PublishedText => SelectedArticle is null
         ? string.Empty
         : $"{Text.Published}: {SelectedArticle.PublishedAt.ToLocalTime().ToString("f", CurrentCulture)}";
@@ -101,6 +104,7 @@ public partial class MainViewModel : ViewModelBase
             var archive = await _newsService.LoadArchiveAsync();
             ApplyArticles(archive.Articles);
             LastSyncAt = archive.LastSyncAt;
+            LastSyncCount = archive.LoadedArticleCount;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
         {
@@ -215,6 +219,8 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnLastSyncAtChanged(DateTimeOffset? value) => UpdateDerivedProperties();
 
+    partial void OnLastSyncCountChanged(int value) => UpdateDerivedProperties();
+
     private async Task RefreshCoreAsync(CancellationToken cancellationToken, bool startup)
     {
         IsRefreshing = true;
@@ -223,8 +229,9 @@ public partial class MainViewModel : ViewModelBase
         {
             var previousIds = Articles.Select(article => article.Id).ToHashSet(StringComparer.Ordinal);
             var result = await _newsService.RefreshAsync(cancellationToken);
-            ApplyArticles(result.Articles);
+            ApplyArticles(result.Articles, result.NewlyAddedIds);
             LastSyncAt = result.CompletedAt;
+            LastSyncCount = result.FeedCount;
             var newCount = result.Articles.Count(article => !previousIds.Contains(article.Id));
             StatusText = string.Format(CurrentCulture, Text.Updated, newCount);
             if (result.ArticleErrors.Count > 0)
@@ -244,10 +251,13 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private void ApplyArticles(IEnumerable<NewsArticle> articles)
+    private void ApplyArticles(IEnumerable<NewsArticle> articles, IReadOnlySet<string>? newlyAddedIds = null)
     {
         var selectedId = SelectedArticle?.Id;
-        var ordered = articles.OrderByDescending(article => article.PublishedAt).ToArray();
+        var ordered = articles
+            .Select(article => article with { IsNew = newlyAddedIds?.Contains(article.Id) == true })
+            .OrderByDescending(article => article.PublishedAt)
+            .ToArray();
 
         Articles.Clear();
         foreach (var article in ordered)

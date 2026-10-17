@@ -20,6 +20,7 @@ public sealed class NewsServiceTests
                   <pubDate>Wed, 14 Oct 2026 16:25:03 GMT</pubDate>
                   <description>Story summary</description>
                   <category>News</category>
+                  <enclosure url="https://media-onlinereports.wepublish.cloud/story.webp" type="image/webp" />
                 </item>
               </channel>
             </rss>
@@ -32,6 +33,17 @@ public sealed class NewsServiceTests
 
         var handler = new StubHttpMessageHandler(request =>
         {
+            if (request.RequestUri?.AbsoluteUri == "https://media-onlinereports.wepublish.cloud/story.webp")
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent([1, 2, 3])
+                    {
+                        Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/webp") }
+                    }
+                };
+            }
+
             var responseContent = request.RequestUri?.AbsoluteUri switch
             {
                 "https://onlinereports.ch/api/rss-feed" => feed,
@@ -55,11 +67,17 @@ public sealed class NewsServiceTests
             var archive = await service.LoadArchiveAsync();
 
             Assert.Single(firstRefresh.Articles);
-            Assert.Equal(3, handler.RequestCount);
+            Assert.Equal(4, handler.RequestCount);
             Assert.Equal("Full text", archive.Articles.Single().Body);
             Assert.Equal("Reporter", archive.Articles.Single().Author);
             Assert.NotNull(archive.LastSyncAt);
+            Assert.Equal(1, archive.LoadedArticleCount);
+            Assert.True(File.Exists(archive.Articles.Single().LocalImagePath));
+            Assert.True(Assert.Single(firstRefresh.Articles).IsNew);
             Assert.Equal("Full text", Assert.Single(secondRefresh.Articles).Body);
+            Assert.False(Assert.Single(secondRefresh.Articles).IsNew);
+            Assert.Contains("story-1", firstRefresh.NewlyAddedIds);
+            Assert.Empty(secondRefresh.NewlyAddedIds);
         }
         finally
         {
