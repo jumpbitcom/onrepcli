@@ -1,0 +1,20 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="OnlineReports.Client.App"
+             xmlns:converters="using:OnlineReports.Client.Converters"
+             RequestedThemeVariant="Default">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://OnlineReports.Client/Assets/jumpbit-theme.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <FontFamily x:Key="JbBodyFont">avares://OnlineReports.Client/Assets/Fonts#Inter, Arial, $Default</FontFamily>
+            <converters:LocalImageConverter x:Key="LocalImageConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://OnlineReports.Client/Assets/jumpbit-styles.axaml" />
+    </Application.Styles>
+</Application>

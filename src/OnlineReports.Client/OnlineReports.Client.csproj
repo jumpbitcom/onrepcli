@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\assets\jumpbit-app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="..\..\assets\jumpbit-theme.axaml" Link="Assets\jumpbit-theme.axaml" />
+    <AvaloniaResource Include="..\..\assets\jumpbit-styles.axaml" Link="Assets\jumpbit-styles.axaml" />
+    <AvaloniaResource Include="..\..\assets\jumpbit-app.ico" Link="Assets\jumpbit-app.ico" />
+    <AvaloniaResource Include="..\..\assets\font\Inter-VariableFont_opsz,wght.ttf" Link="Assets\Fonts\Inter-VariableFont_opsz,wght.ttf" />
+    <AvaloniaResource Include="..\..\assets\font\Inter-Italic-VariableFont_opsz,wght.ttf" Link="Assets\Fonts\Inter-Italic-VariableFont_opsz,wght.ttf" />
+    <Content Include="..\..\assets\jumpbit-app.icns"
+             Link="Assets\jumpbit-app.icns"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <Target Name="CreateMacOSAppBundle"
+          AfterTargets="Publish"
+          Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">
+    <PropertyGroup>
+      <MacAppBundleDirectory>$(PublishDir)OnlineReports.app</MacAppBundleDirectory>
+      <MacAppContentsDirectory>$(MacAppBundleDirectory)/Contents</MacAppContentsDirectory>
+      <MacAppExecutableDirectory>$(MacAppContentsDirectory)/MacOS</MacAppExecutableDirectory>
+      <MacAppResourcesDirectory>$(MacAppContentsDirectory)/Resources</MacAppResourcesDirectory>
+    </PropertyGroup>
+    <MakeDir Directories="$(MacAppExecutableDirectory);$(MacAppResourcesDirectory)" />
+    <ItemGroup>
+      <_MacPublishedFiles Include="$(PublishDir)**/*"
+                          Exclude="$(MacAppBundleDirectory)/**/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_MacPublishedFiles)"
+          DestinationFiles="@(_MacPublishedFiles->'$(MacAppExecutableDirectory)/%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Assets/Info.plist"
+          DestinationFolder="$(MacAppContentsDirectory)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../../assets/jumpbit-app.icns"
+          DestinationFolder="$(MacAppResourcesDirectory)" />
+  </Target>
+</Project>
