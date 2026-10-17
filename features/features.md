@@ -5,6 +5,7 @@
 - The whole app is available as German, French and English
 - Saves the latest feed and full article archive locally so previously downloaded reporting remains available offline.
 - Uses the Jumpbit theme assets and follows the operating system's light or dark appearance.
+- Make a jumpbit app icon for this app running on macos or windows.
 
 ## App main layout
 It has 3 parts, top row is the header, left side is around 30% and show the sections, right side is the body.
@@ -18,10 +19,13 @@ On start of the application make by default an udpate before showing the main pa
 It has a dropbox button to select the language, start with German as default. Make this dropbox button similar to the normal button with rounded edges.
 
 ### Left side
-- Sections: all stories, News, Politics, Economy, Culture & Society, and Columns. It has a menu showing the different rubrics of onlinereports.ch. Make the boxes with rounded edges.
+- Sections: all stories, News, Politics, Economy, Culture & Society, and Columns. It has a menu showing the different rubrics of onlinereports.ch. Make the boxes with rounded edges. But no button inside.
+- On the bottom show error or warning messages in regard to updates
+- 
 
 ### Right side - Main Page
 - Shows the three newest acrticel stories for the selected OnlineReports section as articel summary box.
+- Do not show update information of update button! Just the articels.
 
 
 ### Right side - Detailed news page
