@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         x:Class="OnlineReports.Client.Views.MainWindow"
         x:DataType="vm:MainViewModel"
+        Icon="/Assets/jumpbit-app.ico"
         Title="Online Report"
         Width="1180"
         Height="780"
@@ -36,8 +37,8 @@
                 <Button Grid.Column="2"
                         Content="i"
                         Classes="info"
-                        ToolTip.Tip="{Binding Text.SyncInformation}"
-                        AutomationProperties.Name="{Binding Text.SyncInformation}"
+                        ToolTip.Tip="{Binding Text.SyncInfoButton}"
+                        AutomationProperties.Name="{Binding Text.SyncInfoButton}"
                         VerticalAlignment="Center">
                     <Button.Flyout>
                         <Flyout>
@@ -91,46 +92,19 @@
                                Classes="muted"
                                TextWrapping="Wrap"
                                Margin="10,14,10,4"
+                               IsVisible="{Binding HasStatusText}"
                                AutomationProperties.LiveSetting="Polite" />
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="1"
-                  RowDefinitions="Auto,*"
-                  Margin="32,24">
-                <Grid ColumnDefinitions="*,Auto,Auto"
-                      ColumnSpacing="16"
-                      Margin="0,0,0,20">
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="{Binding SelectedSection.Title}"
-                                   Classes="h3"
-                                   IsVisible="{Binding !IsArticleSelected}" />
-                        <TextBlock Text="{Binding SelectedArticle.Title}"
-                                   Classes="h3"
-                                   IsVisible="{Binding IsArticleSelected}" />
-                        <TextBlock Text="{Binding SyncInfo}" Classes="muted" />
-                    </StackPanel>
-                    <Button Grid.Column="1"
-                            Content="{Binding Text.Refresh}"
-                            Command="{Binding RefreshCommand}"
-                            IsEnabled="{Binding !IsRefreshing}"
-                            VerticalAlignment="Center"
-                            Classes="primary" />
-                    <TextBlock Grid.Column="2"
-                               Text="{Binding Text.Updating}"
-                               Classes="muted"
-                               IsVisible="{Binding IsRefreshing}"
-                               VerticalAlignment="Center" />
-                </Grid>
-
-                <Grid Grid.Row="1">
-                    <ListBox ItemsSource="{Binding VisibleArticles}"
-                             SelectedItem="{Binding SelectedArticle}"
-                             IsVisible="{Binding !IsArticleSelected}"
-                             Background="Transparent"
-                             BorderThickness="0">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="models:NewsArticle">
+            <Grid Grid.Column="1" Margin="32,24">
+                <ListBox ItemsSource="{Binding VisibleArticles}"
+                         SelectedItem="{Binding SelectedArticle}"
+                         IsVisible="{Binding !IsArticleSelected}"
+                         Background="Transparent"
+                         BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:NewsArticle">
                                 <Border Classes="card" Margin="0,0,0,14">
                                     <Grid>
                                         <StackPanel Spacing="9" Margin="0,0,18,0">
@@ -169,21 +143,21 @@
                                                  Fill="{DynamicResource JbSuccessBrush}"
                                                  HorizontalAlignment="Right"
                                                  VerticalAlignment="Top"
-                                         IsVisible="{Binding IsNew}" />
+                                                 IsVisible="{Binding IsNew}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                    </ListBox>
+                </ListBox>
 
-                    <TextBlock Text="{Binding EmptyStateText}"
+                <TextBlock Text="{Binding EmptyStateText}"
                                Classes="muted"
                                FontSize="16"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                IsVisible="{Binding !IsArticleSelected}" />
 
-                    <ScrollViewer IsVisible="{Binding IsArticleSelected}">
+                <ScrollViewer IsVisible="{Binding IsArticleSelected}">
                         <StackPanel Spacing="16" MaxWidth="900">
                             <Button Content="{Binding Text.BackToStories}"
                                     Command="{Binding BackToStoriesCommand}"
@@ -227,9 +201,8 @@
                                     Classes="primary"
                                     HorizontalAlignment="Left"
                                     Margin="0,8,0,24" />
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Grid>
 

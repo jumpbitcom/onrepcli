@@ -17,6 +17,14 @@ dotnet run --project src/OnlineReports.Client
 
 The first launch updates the feed before showing the stories. If the feed is unavailable, previously archived stories remain available and the sync status explains the problem.
 
+The Jump Bit app icon is applied to Windows executables and the window. Publish a macOS app bundle with its ICNS Dock icon using:
+
+```sh
+dotnet publish src/OnlineReports.Client -c Release -r osx-arm64 --self-contained
+```
+
+The bundle is written to `src/OnlineReports.Client/bin/Release/net10.0/osx-arm64/publish/OnlineReports.app`. Use `-r osx-x64` to build for Intel Macs.
+
 ## Test
 
 ```sh

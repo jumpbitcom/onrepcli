@@ -17,6 +17,10 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly NewsService _newsService;
     private bool _initialized;
+    private bool _isStartupLoading;
+    private string? _statusError;
+    private int _statusWarningCount;
+    private string? _statusWarningDetail;
 
     public MainViewModel(NewsService newsService)
     {
@@ -81,6 +85,7 @@ public partial class MainViewModel : ViewModelBase
     public bool HasArticleImage => SelectedArticle?.HasLocalImage == true;
     public bool CanLoadImage => !string.IsNullOrWhiteSpace(SelectedArticle?.ImageUrl) && !HasArticleImage;
     public bool HasMediaLinks => SelectedArticle?.MediaLinks.Length > 0;
+    public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
     public string EmptyStateText => VisibleArticles.Count == 0 ? Text.NoStories : Text.SelectStory;
 
     private CultureInfo CurrentCulture => CultureInfo.GetCultureInfo(Language switch
@@ -98,7 +103,8 @@ public partial class MainViewModel : ViewModelBase
         }
 
         _initialized = true;
-        StatusText = Text.Updating;
+        _isStartupLoading = true;
+        UpdateStatusText();
         try
         {
             var archive = await _newsService.LoadArchiveAsync();
@@ -108,7 +114,7 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
 
         await RefreshCoreAsync(CancellationToken.None, startup: true);
@@ -139,7 +145,7 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception exception) when (
             exception is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException or InvalidOperationException)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
         finally
         {
@@ -163,11 +169,11 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (System.ComponentModel.Win32Exception exception)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
         catch (InvalidOperationException exception)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
     }
 
@@ -186,11 +192,11 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (System.ComponentModel.Win32Exception exception)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
         catch (InvalidOperationException exception)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
     }
 
@@ -200,13 +206,10 @@ public partial class MainViewModel : ViewModelBase
         RebuildSections();
         RefreshVisibleArticles();
         UpdateDerivedProperties();
-        if (!IsRefreshing && IsInitialized)
-        {
-            StatusText = LastSyncAt is not null
-                ? $"{Text.LastUpdated}: {LastSyncAt.Value.ToLocalTime().ToString("f", CurrentCulture)}"
-                : Text.NeverUpdated;
-        }
+        UpdateStatusText();
     }
+
+    partial void OnStatusTextChanged(string value) => OnPropertyChanged(nameof(HasStatusText));
 
     partial void OnSelectedSectionChanged(SectionOption? value) => RefreshVisibleArticles();
 
@@ -224,31 +227,58 @@ public partial class MainViewModel : ViewModelBase
     private async Task RefreshCoreAsync(CancellationToken cancellationToken, bool startup)
     {
         IsRefreshing = true;
-        StatusText = Text.Updating;
+        _isStartupLoading = startup;
+        _statusError = null;
+        _statusWarningDetail = null;
+        UpdateStatusText();
         try
         {
-            var previousIds = Articles.Select(article => article.Id).ToHashSet(StringComparer.Ordinal);
             var result = await _newsService.RefreshAsync(cancellationToken);
             ApplyArticles(result.Articles, result.NewlyAddedIds);
             LastSyncAt = result.CompletedAt;
             LastSyncCount = result.FeedCount;
-            var newCount = result.Articles.Count(article => !previousIds.Contains(article.Id));
-            StatusText = string.Format(CurrentCulture, Text.Updated, newCount);
             if (result.ArticleErrors.Count > 0)
             {
-                StatusText += $" {string.Format(CurrentCulture, Text.SomeArticlesFailed, result.ArticleErrors.Count, result.ArticleErrors[0])}";
+                _statusWarningCount = result.ArticleErrors.Count;
+                _statusWarningDetail = result.ArticleErrors[0];
             }
+            else
+            {
+                _statusWarningCount = 0;
+                _statusWarningDetail = null;
+            }
+
+            UpdateStatusText();
         }
         catch (Exception exception) when (
             exception is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException or JsonException or XmlException or InvalidOperationException or ArgumentException)
         {
-            StatusText = string.Format(CurrentCulture, Text.UpdateFailed, exception.Message);
+            SetStatusError(exception.Message);
         }
         finally
         {
+            _isStartupLoading = false;
+            UpdateStatusText();
             IsRefreshing = false;
             IsInitialized = !startup || IsInitialized;
         }
+    }
+
+    private void SetStatusError(string message)
+    {
+        _statusError = message;
+        _statusWarningDetail = null;
+        _isStartupLoading = false;
+        UpdateStatusText();
+    }
+
+    private void UpdateStatusText()
+    {
+        StatusText = _statusError is not null
+            ? string.Format(CurrentCulture, Text.UpdateFailed, _statusError)
+            : _statusWarningDetail is not null
+                ? string.Format(CurrentCulture, Text.UpdateWarning, _statusWarningCount, _statusWarningDetail)
+                : _isStartupLoading ? Text.Updating : string.Empty;
     }
 
     private void ApplyArticles(IEnumerable<NewsArticle> articles, IReadOnlySet<string>? newlyAddedIds = null)
@@ -313,6 +343,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasArticleImage));
         OnPropertyChanged(nameof(CanLoadImage));
         OnPropertyChanged(nameof(HasMediaLinks));
+        OnPropertyChanged(nameof(HasStatusText));
         OnPropertyChanged(nameof(EmptyStateText));
     }
 
