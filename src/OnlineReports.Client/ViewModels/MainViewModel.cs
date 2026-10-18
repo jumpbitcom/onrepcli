@@ -15,6 +15,10 @@ namespace OnlineReports.Client.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    private const string TopNewsKey = "top";
+    private const string AllArticlesKey = "all";
+    private const int TopNewsCount = 3;
+
     private readonly NewsService _newsService;
     private bool _initialized;
     private bool _isStartupLoading;
@@ -61,9 +65,6 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool isRefreshing;
 
-    [ObservableProperty]
-    private bool isLoadingImage;
-
     public bool IsArticleSelected => SelectedArticle is not null;
     public string SyncInfo => LastSyncAt is null
         ? Text.NeverUpdated
@@ -83,10 +84,10 @@ public partial class MainViewModel : ViewModelBase
         ? string.Empty
         : $"{Text.Sections}: {string.Join(", ", SelectedArticle.Categories)}";
     public bool HasArticleImage => SelectedArticle?.HasLocalImage == true;
-    public bool CanLoadImage => !string.IsNullOrWhiteSpace(SelectedArticle?.ImageUrl) && !HasArticleImage;
     public bool HasMediaLinks => SelectedArticle?.MediaLinks.Length > 0;
     public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
-    public string EmptyStateText => VisibleArticles.Count == 0 ? Text.NoStories : Text.SelectStory;
+    public string EmptyStateText => Text.NoStories;
+    public bool ShowEmptyState => !IsArticleSelected && VisibleArticles.Count == 0;
 
     private CultureInfo CurrentCulture => CultureInfo.GetCultureInfo(Language switch
     {
@@ -127,31 +128,6 @@ public partial class MainViewModel : ViewModelBase
 
     [RelayCommand]
     private void BackToStories() => SelectedArticle = null;
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task LoadImageAsync(CancellationToken cancellationToken)
-    {
-        if (SelectedArticle is null)
-        {
-            return;
-        }
-
-        IsLoadingImage = true;
-        try
-        {
-            SelectedArticle = await _newsService.LoadImageAsync(SelectedArticle, cancellationToken);
-            UpdateDerivedProperties();
-        }
-        catch (Exception exception) when (
-            exception is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException or InvalidOperationException)
-        {
-            SetStatusError(exception.Message);
-        }
-        finally
-        {
-            IsLoadingImage = false;
-        }
-    }
 
     [RelayCommand]
     private void OpenArticle()
@@ -216,6 +192,7 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedArticleChanged(NewsArticle? value)
     {
         OnPropertyChanged(nameof(IsArticleSelected));
+        OnPropertyChanged(nameof(ShowEmptyState));
         UpdateDerivedProperties();
         RefreshMediaLinks();
     }
@@ -304,12 +281,14 @@ public partial class MainViewModel : ViewModelBase
 
     private void RefreshVisibleArticles()
     {
-        var key = SelectedSection?.Key ?? "all";
-        var visible = Articles
+        var key = SelectedSection?.Key ?? TopNewsKey;
+        var sectionArticles = Articles
             .Where(article => IsInSection(article, key))
-            .OrderByDescending(article => article.PublishedAt)
-            .Take(3)
-            .ToArray();
+            .OrderByDescending(article => article.PublishedAt);
+        // Top News shows only the newest stories; the other sections list every archived article.
+        var visible = key == TopNewsKey
+            ? sectionArticles.Take(TopNewsCount).ToArray()
+            : sectionArticles.ToArray();
 
         VisibleArticles.Clear();
         foreach (var article in visible)
@@ -318,18 +297,20 @@ public partial class MainViewModel : ViewModelBase
         }
 
         OnPropertyChanged(nameof(EmptyStateText));
+        OnPropertyChanged(nameof(ShowEmptyState));
     }
 
     private void RebuildSections()
     {
-        var selectedKey = SelectedSection?.Key ?? "all";
+        var selectedKey = SelectedSection?.Key ?? TopNewsKey;
         Sections.Clear();
-        Sections.Add(new SectionOption("all", Text.AllStories));
+        Sections.Add(new SectionOption(TopNewsKey, Text.TopNews));
         Sections.Add(new SectionOption("news", Text.News));
         Sections.Add(new SectionOption("politics", Text.Politics));
         Sections.Add(new SectionOption("economy", Text.Economy));
         Sections.Add(new SectionOption("culture", Text.Culture));
         Sections.Add(new SectionOption("columns", Text.Columns));
+        Sections.Add(new SectionOption(AllArticlesKey, Text.AllArticles));
         SelectedSection = Sections.FirstOrDefault(section => section.Key == selectedKey) ?? Sections[0];
     }
 
@@ -341,10 +322,10 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(SelectedArticleBody));
         OnPropertyChanged(nameof(SectionsText));
         OnPropertyChanged(nameof(HasArticleImage));
-        OnPropertyChanged(nameof(CanLoadImage));
         OnPropertyChanged(nameof(HasMediaLinks));
         OnPropertyChanged(nameof(HasStatusText));
         OnPropertyChanged(nameof(EmptyStateText));
+        OnPropertyChanged(nameof(ShowEmptyState));
     }
 
     private void RefreshMediaLinks()
@@ -358,7 +339,7 @@ public partial class MainViewModel : ViewModelBase
 
     private static bool IsInSection(NewsArticle article, string sectionKey)
     {
-        if (sectionKey == "all")
+        if (sectionKey is TopNewsKey or AllArticlesKey)
         {
             return true;
         }

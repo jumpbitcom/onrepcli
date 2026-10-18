@@ -81,9 +81,7 @@
                              BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="localization:SectionOption">
-                                <Border Classes="section-item">
-                                    <TextBlock Text="{Binding Title}" />
-                                </Border>
+                                <TextBlock Text="{Binding Title}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -101,6 +99,7 @@
                 <ListBox ItemsSource="{Binding VisibleArticles}"
                          SelectedItem="{Binding SelectedArticle}"
                          IsVisible="{Binding !IsArticleSelected}"
+                         Classes="articles"
                          Background="Transparent"
                          BorderThickness="0">
                     <ListBox.ItemTemplate>
@@ -155,7 +154,7 @@
                                FontSize="16"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               IsVisible="{Binding !IsArticleSelected}" />
+                               IsVisible="{Binding ShowEmptyState}" />
 
                 <ScrollViewer IsVisible="{Binding IsArticleSelected}">
                         <StackPanel Spacing="16" MaxWidth="900">
@@ -170,11 +169,6 @@
                                    MaxHeight="420"
                                    Stretch="Uniform"
                                    HorizontalAlignment="Left" />
-                            <Button Content="{Binding Text.LoadImage}"
-                                    Command="{Binding LoadImageCommand}"
-                                    IsVisible="{Binding CanLoadImage}"
-                                    IsEnabled="{Binding !IsLoadingImage}"
-                                    HorizontalAlignment="Left" />
                             <TextBlock Text="{Binding PublishedText}" Classes="muted" />
                             <TextBlock Text="{Binding AuthorText}" Classes="muted" />
                             <TextBlock Text="{Binding SectionsText}" Classes="muted" />

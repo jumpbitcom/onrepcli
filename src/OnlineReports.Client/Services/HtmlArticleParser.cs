@@ -135,9 +135,9 @@ public static partial class HtmlArticleParser
         {
             JsonValueKind.String => image.GetString(),
             JsonValueKind.Array => image.EnumerateArray()
-                .Select(item => item.ValueKind == JsonValueKind.String ? item.GetString() : GetString(item, "url"))
+                .Select(item => item.ValueKind == JsonValueKind.String ? item.GetString() : GetString(item, "url") ?? GetString(item, "contentUrl"))
                 .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)),
-            JsonValueKind.Object => GetString(image, "url"),
+            JsonValueKind.Object => GetString(image, "url") ?? GetString(image, "contentUrl"),
             _ => null
         };
     }

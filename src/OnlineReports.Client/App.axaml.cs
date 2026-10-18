@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using OnlineReports.Client.Platform;
 using OnlineReports.Client.Services;
 using OnlineReports.Client.ViewModels;
 using OnlineReports.Client.Views;
@@ -24,6 +25,11 @@ public partial class App : Application
             var archiveDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "OnlineReports");
+            if (OperatingSystem.IsMacOS())
+            {
+                MacDockIcon.Apply(Path.Combine(AppContext.BaseDirectory, "Assets", "jumpbit-app.icns"));
+            }
+
             var newsService = new NewsService(_httpClient, archiveDirectory);
             desktop.MainWindow = new MainWindow
             {

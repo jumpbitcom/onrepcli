@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="OnlineReports.Client.App"
              xmlns:converters="using:OnlineReports.Client.Converters"
+             Name="Online Report"
              RequestedThemeVariant="Default">
     <Application.Resources>
         <ResourceDictionary>

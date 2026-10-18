@@ -69,18 +69,68 @@
     <Setter Property="Padding" Value="4,2" />
   </Style>
 
-  <Style Selector="Border.section-item">
-    <Setter Property="Background" Value="Transparent" />
+  <!-- Section menu: the ListBoxItem itself is the single rounded box; no nested borders. -->
+  <Style Selector="ListBox.sections ListBoxItem">
     <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
-    <Setter Property="Padding" Value="10,9" />
+    <Setter Property="Padding" Value="12,9" />
     <Setter Property="Margin" Value="0,2" />
+    <Setter Property="Background" Value="Transparent" />
   </Style>
-  <Style Selector="ListBox.sections ListBoxItem:pointerover Border.section-item">
+  <Style Selector="ListBox.sections ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="CornerRadius" Value="{StaticResource JbRadiusMd}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
   </Style>
-  <Style Selector="ListBox.sections ListBoxItem:selected Border.section-item">
+  <Style Selector="ListBox.sections ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource JbSurfaceRaisedBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbTextBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource JbPrimaryBrush}" />
-    <Setter Property="TextElement.Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryHoverBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+  <Style Selector="ListBox.sections ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource JbPrimaryHoverBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource JbOnPrimaryBrush}" />
+  </Style>
+
+  <!-- Article list: the card is the only box; the ListBoxItem stays invisible and the card border highlights. -->
+  <Style Selector="ListBox.articles ListBoxItem">
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.articles ListBoxItem:pointerover Border.card">
+    <Setter Property="BorderBrush" Value="{DynamicResource JbPrimaryBrush}" />
   </Style>
 
   <Style Selector="Button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">

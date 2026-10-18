@@ -47,25 +47,33 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
         var pageErrors = new ConcurrentBag<string>();
         using var concurrencyLimit = new SemaphoreSlim(3);
 
+        // Fetch full text for new articles, and the main image for any archived article still missing it.
         var fetchTasks = feedEntries
-            .Where(entry => !archived.TryGetValue(entry.Id, out var existing) || string.IsNullOrWhiteSpace(existing.Body))
+            .Where(entry => !archived.TryGetValue(entry.Id, out var existing)
+                || string.IsNullOrWhiteSpace(existing.Body)
+                || NeedsImage(existing))
             .Select(async entry =>
             {
                 await concurrencyLimit.WaitAsync(cancellationToken);
                 try
                 {
                     archived.TryGetValue(entry.Id, out var priorArticle);
-                    var result = await FetchArticleAsync(entry, cancellationToken);
-                    if (result.Error is not null)
+                    NewsArticle article;
+                    if (priorArticle is not null && !string.IsNullOrWhiteSpace(priorArticle.Body))
                     {
-                        pageErrors.Add($"{entry.Title}: {result.Error}");
-                        if (priorArticle is not null)
+                        article = priorArticle;
+                    }
+                    else
+                    {
+                        var result = await FetchArticleAsync(entry, cancellationToken);
+                        if (result.Error is not null)
                         {
-                            return;
+                            pageErrors.Add($"{entry.Title}: {result.Error}");
                         }
+
+                        article = result.Error is not null && priorArticle is not null ? priorArticle : result.Article;
                     }
 
-                    var article = result.Article;
                     if (priorArticle?.HasLocalImage == true)
                     {
                         article = article with { LocalImagePath = priorArticle.LocalImagePath };
@@ -77,19 +85,9 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
                             var imagePath = await DownloadImageAsync(article.Id, article.ImageUrl, cancellationToken);
                             article = article with { LocalImagePath = imagePath };
                         }
-                        catch (HttpRequestException exception)
-                        {
-                            pageErrors.Add($"{entry.Title}: {exception.Message}");
-                        }
-                        catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
-                        {
-                            pageErrors.Add($"{entry.Title}: {exception.Message}");
-                        }
-                        catch (InvalidDataException exception)
-                        {
-                            pageErrors.Add($"{entry.Title}: {exception.Message}");
-                        }
-                        catch (InvalidOperationException exception)
+                        catch (Exception exception) when (
+                            exception is HttpRequestException or InvalidDataException or InvalidOperationException
+                            || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested))
                         {
                             pageErrors.Add($"{entry.Title}: {exception.Message}");
                         }
@@ -124,29 +122,8 @@ public sealed class NewsService(HttpClient httpClient, string archiveDirectory)
             completedAt);
     }
 
-    public async Task<NewsArticle> LoadImageAsync(NewsArticle article, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(article);
-        if (article.HasLocalImage)
-        {
-            return article;
-        }
-
-        var imagePath = await DownloadImageAsync(article.Id, article.ImageUrl, cancellationToken);
-
-        var updatedArticle = article with { LocalImagePath = imagePath };
-        var archive = await LoadArchiveAsync(cancellationToken);
-        var articles = archive.Articles
-            .Select(existing => existing.Id == article.Id ? updatedArticle : existing)
-            .ToArray();
-        if (articles.All(existing => existing.Id != article.Id))
-        {
-            articles = [.. articles, updatedArticle];
-        }
-
-        await SaveArchiveAsync(archive with { Articles = articles }, cancellationToken);
-        return updatedArticle;
-    }
+    private static bool NeedsImage(NewsArticle article) =>
+        !article.HasLocalImage && !string.IsNullOrWhiteSpace(article.ImageUrl);
 
     private async Task<string> DownloadImageAsync(
         string articleId,
