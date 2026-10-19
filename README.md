@@ -1,6 +1,10 @@
 # OnlineReports Client
 
-OnlineReports is a Basel-based local news provider. This cross-platform native desktop client reads its public feed and article pages without embedding a browser. Version 2 is an Avalonia desktop app for Windows, macOS and Linux.
+[OnlineReports](https://www.onlinereports.ch/) is a Basel-based local news provider. This cross-platform native desktop client reads its public feed and article pages without embedding a browser. Version 2 is an Avalonia desktop app for Windows, macOS and Linux.
+
+![Welcome Screen](screen-welcome.png)
+
+![Article Screen](screen-article.png)
 
 ## Features
 The product brief is in [features/features.md](features/features.md). The client opens on Top News with the three newest stories, lists every archived story of a section in News, Politics, Economy, Culture & Society and Columns, and shows every available story under All articles at the end of the menu, reads article text natively, and keeps downloaded articles available offline. Feed updates cache the first main image of each article (also filling in images missing from earlier updates) and mark newly added stories; the sync information reports the last update time and number of feed articles loaded. German is the default interface language, with French and English also available. The app follows the operating system's light or dark appearance.
